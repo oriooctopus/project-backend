@@ -2,7 +2,6 @@ import core from '@gqlapp/core-server-ts';
 import i18n from '@gqlapp/i18n-server-ts';
 import validation from '@gqlapp/validation-common-react';
 import counter from '@gqlapp/counter-server-ts';
-import chat from '@gqlapp/chat-server-ts';
 import contact from '@gqlapp/contact-server-ts';
 import cookies from '@gqlapp/cookies-server-ts';
 import post from '@gqlapp/post-server-ts';
@@ -31,7 +30,6 @@ const modules: ServerModule = new ServerModule(
   upload,
   contact,
   mailer,
-  chat,
   reports,
   rest,
   graphqlTypes,
