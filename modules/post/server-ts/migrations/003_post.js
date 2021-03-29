@@ -15,6 +15,18 @@ exports.up = function(knex, Promise) {
           .references('id')
           .inTable('post')
           .onDelete('CASCADE');
+        table
+          .integer('user_id')
+          .unsigned()
+          .references('id')
+          .inTable('user_profile')
+          .onDelete('CASCADE');
+        table
+          .integer('parent_comment_id')
+          .unsigned()
+          .references('id')
+          .inTable('comment');
+        table.integer('rating');
         table.string('content');
         table.timestamps(false, true);
       })

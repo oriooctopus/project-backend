@@ -16,6 +16,7 @@
     "seed": "yarn migrate && knex seed:run",
     "migrate": "knex migrate:latest",
     "rollback": "knex migrate:rollback",
+    "restart": "yarn rollback && yarn migrate && yarn seed",
     "watch": "webpack --watch",
     "watch:android": "webpack --watch",
     "watch:ios": "webpack --watch",

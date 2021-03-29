@@ -28,6 +28,8 @@ const sendEmailToUser = async (userId: number, subject: string, html: string) =>
   });
 };
 
+// sendEmailToUser(3, 'test', 'yeet');
+
 /**
  * Deletes a subscription and notifies the user that the subscription was canceled.
  *

@@ -33,4 +33,9 @@ export async function seed(knex, Promise) {
     role: 'user',
     is_active: true
   });
+  await returnId(knex('user_profile')).insert({
+    user_id: 2,
+    first_name: 'oliver',
+    last_name: 'ullman'
+  });
 }

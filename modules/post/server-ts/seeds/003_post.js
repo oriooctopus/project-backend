@@ -14,7 +14,9 @@ export async function seed(knex, Promise) {
         [...Array(2).keys()].map(async jj => {
           return returnId(knex('comment')).insert({
             post_id: post[0],
-            content: `Comment title ${jj + 1} for post ${post[0]}`
+            content: `Comment title ${jj + 1} for post ${post[0]}`,
+            rating: 5,
+            user_id: 1
           });
         })
       );

@@ -8,6 +8,8 @@ export interface Post {
 export interface Comment {
   postId: number;
   content: string;
+  userId: number;
+  review: string;
 }
 
 export interface Identifier {
@@ -26,7 +28,7 @@ export default class PostDAO {
 
   public async getCommentsForPostIds(postIds: number[]) {
     const res = await knex
-      .select('id', 'content', 'post_id AS postId')
+      .select('id', 'content', 'rating', 'post_id AS postId', 'user_id AS userId')
       .from('comment')
       .whereIn('post_id', postIds);
 

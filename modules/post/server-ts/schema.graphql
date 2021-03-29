@@ -10,6 +10,10 @@ type Post {
 type Comment {
   id: Int!
   content: String!
+  rating: String!
+  userId: Int!
+  postId: Int!
+  userProfile: UserProfile!
 }
 
 # Edges for Posts

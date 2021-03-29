@@ -6,6 +6,16 @@ import { knex, returnId } from '@gqlapp/database-server-ts';
 
 // Actual query fetching and transformation in DB
 class User {
+  async getUserProfile(id) {
+    return camelizeKeys(
+      await knex
+        .select('id', 'first_name', 'last_name')
+        .from('user_profile')
+        .where('id', '=', id)
+        .first()
+    );
+  }
+
   async getUsers(orderBy, filter) {
     const queryBuilder = knex
       .select(

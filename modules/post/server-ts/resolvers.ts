@@ -62,6 +62,11 @@ export default (pubsub: PubSub) => ({
       return context.Post.post(id);
     }
   },
+  Comment: {
+    userProfile({ userId }: Comment, args, context: any) {
+      return context.User.getUserProfile(userId);
+    }
+  },
   Post: {
     comments: createBatchResolver((sources, args, context) => {
       return context.Post.getCommentsForPostIds(sources.map(({ id }) => id));
