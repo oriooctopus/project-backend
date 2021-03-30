@@ -1,7 +1,7 @@
 import { PubSub, withFilter } from 'graphql-subscriptions';
 import { createBatchResolver } from 'graphql-resolve-batch';
 // interfaces
-import { Post, Comment, Identifier } from './sql';
+import { Post, Review, Identifier } from './sql';
 
 interface Edges {
   cursor: number;
@@ -21,17 +21,26 @@ interface PostInputWithId {
   input: Post & Identifier;
 }
 
-interface CommentInput {
-  input: Comment;
+interface ReviewInput {
+  input: Review;
 }
 
-interface CommentInputWithId {
-  input: Comment & Identifier;
+interface ReviewInputWithId {
+  input: Review & Identifier;
+}
+
+interface ReviewCommentInput {
+  input: ReviewComment;
+}
+
+interface ReviewCommentInputWithId {
+  input: ReviewComment & Identifier;
 }
 
 const POST_SUBSCRIPTION = 'post_subscription';
 const POSTS_SUBSCRIPTION = 'posts_subscription';
-const COMMENT_SUBSCRIPTION = 'comment_subscription';
+const REVIEW_SUBSCRIPTION = 'review_subscription';
+const REVIEW_COMMENT_SUBSCRIPTION = 'review_comment_subscription';
 
 export default (pubsub: PubSub) => ({
   Query: {
@@ -62,14 +71,17 @@ export default (pubsub: PubSub) => ({
       return context.Post.post(id);
     }
   },
-  Comment: {
-    userProfile({ userId }: Comment, args, context: any) {
+  Review: {
+    reviewComment({ id }: Identifier, _, context: any) {
+      return context.Post.getReviewCommentFromReview(id);
+    },
+    userProfile({ userId }: Review, _, context: any) {
       return context.User.getUserProfile(userId);
     }
   },
   Post: {
-    comments: createBatchResolver((sources, args, context) => {
-      return context.Post.getCommentsForPostIds(sources.map(({ id }) => id));
+    reviews: createBatchResolver((sources, args, context) => {
+      return context.Post.getReviewsForPostIds(sources.map(({ id }) => id));
     })
   },
   Mutation: {
@@ -132,25 +144,25 @@ export default (pubsub: PubSub) => ({
       });
       return post;
     },
-    async addComment(obj: any, { input }: CommentInput, context: any) {
-      const [id] = await context.Post.addComment(input);
-      const comment = await context.Post.getComment(id);
+    async addReview(obj: any, { input }: ReviewInput, context: any) {
+      const [id] = await context.Post.addReview(input);
+      const review = await context.Post.getReview(id);
       // publish for edit post page
-      pubsub.publish(COMMENT_SUBSCRIPTION, {
-        commentUpdated: {
+      pubsub.publish(REVIEW_SUBSCRIPTION, {
+        reviewUpdated: {
           mutation: 'CREATED',
-          id: comment.id,
+          id: review.id,
           postId: input.postId,
-          node: comment
+          node: review
         }
       });
-      return comment;
+      return review;
     },
-    async deleteComment(obj: any, { input: { id, postId } }: CommentInputWithId, context: any) {
-      await context.Post.deleteComment(id);
+    async deleteReview(obj: any, { input: { id, postId } }: ReviewInputWithId, context: any) {
+      await context.Post.deleteReview(id);
       // publish for edit post page
-      pubsub.publish(COMMENT_SUBSCRIPTION, {
-        commentUpdated: {
+      pubsub.publish(REVIEW_SUBSCRIPTION, {
+        reviewUpdated: {
           mutation: 'DELETED',
           id,
           postId,
@@ -159,19 +171,60 @@ export default (pubsub: PubSub) => ({
       });
       return { id };
     },
-    async editComment(obj: any, { input }: CommentInputWithId, context: any) {
-      await context.Post.editComment(input);
-      const comment = await context.Post.getComment(input.id);
+    async editReview(obj: any, { input }: ReviewInputWithId, context: any) {
+      await context.Post.editReview(input);
+      const review = await context.Post.getReview(input.id);
       // publish for edit post page
-      pubsub.publish(COMMENT_SUBSCRIPTION, {
-        commentUpdated: {
+      pubsub.publish(REVIEW_SUBSCRIPTION, {
+        reviewUpdated: {
           mutation: 'UPDATED',
           id: input.id,
           postId: input.postId,
-          node: comment
+          node: review
         }
       });
-      return comment;
+      return review;
+    },
+    async addReviewComment(obj: any, { input }: ReviewCommentInput, context: any) {
+      const [id] = await context.Post.addReviewComment(input);
+      const reviewComment = await context.Post.getReviewComment(id);
+      // publish for edit post page
+      pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
+        reviewCommentUpdated: {
+          mutation: 'CREATED',
+          id: reviewComment.id,
+          postId: input.postId,
+          node: reviewComment
+        }
+      });
+      return reviewComment;
+    },
+    async deleteReviewComment(obj: any, { input: { id, postId } }: ReviewCommentInputWithId, context: any) {
+      await context.Post.deleteReviewComment(id);
+      // publish for edit post page
+      pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
+        reviewCommentUpdated: {
+          mutation: 'DELETED',
+          id,
+          postId,
+          node: null
+        }
+      });
+      return { id };
+    },
+    async editReviewComment(obj: any, { input }: ReviewCommentInputWithId, context: any) {
+      await context.Post.editReviewComment(input);
+      const reviewComment = await context.Post.getReviewComment(input.id);
+      // publish for edit post page
+      pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
+        reviewCommentUpdated: {
+          mutation: 'UPDATED',
+          id: input.id,
+          postId: input.postId,
+          node: reviewComment
+        }
+      });
+      return reviewComment;
     }
   },
   Subscription: {
@@ -191,11 +244,19 @@ export default (pubsub: PubSub) => ({
         }
       )
     },
-    commentUpdated: {
+    reviewUpdated: {
       subscribe: withFilter(
-        () => pubsub.asyncIterator(COMMENT_SUBSCRIPTION),
+        () => pubsub.asyncIterator(REVIEW_SUBSCRIPTION),
         (payload, variables) => {
-          return payload.commentUpdated.postId === variables.postId;
+          return payload.reviewUpdated.postId === variables.postId;
+        }
+      )
+    },
+    reviewCommentUpdated: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(REVIEW_COMMENT_SUBSCRIPTION),
+        (payload, variables) => {
+          return payload.reviewCommentUpdated.postId === variables.postId;
         }
       )
     }

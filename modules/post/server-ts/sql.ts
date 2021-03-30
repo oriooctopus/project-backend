@@ -5,11 +5,16 @@ export interface Post {
   content: string;
 }
 
-export interface Comment {
+export interface Review {
   postId: number;
   content: string;
   userId: number;
   review: string;
+}
+
+export interface ReviewComment {
+  reviewId: number;
+  comment: string;
 }
 
 export interface Identifier {
@@ -26,10 +31,10 @@ export default class PostDAO {
       .offset(after);
   }
 
-  public async getCommentsForPostIds(postIds: number[]) {
+  public async getReviewsForPostIds(postIds: number[]) {
     const res = await knex
       .select('id', 'content', 'rating', 'post_id AS postId', 'user_id AS userId')
-      .from('comment')
+      .from('review')
       .whereIn('post_id', postIds);
 
     return orderedFor(res, postIds, 'postId', false);
@@ -65,29 +70,35 @@ export default class PostDAO {
       .update({ title, content });
   }
 
-  public addComment({ content, postId }: Comment) {
-    return returnId(knex('comment')).insert({ content, post_id: postId });
+  public addReview({ content, postId }: Review) {
+    return returnId(knex('review')).insert({ content, post_id: postId });
   }
 
-  public getComment(id: number) {
+  public getReview(id: number) {
     return knex
       .select('id', 'content')
-      .from('comment')
+      .from('review')
       .where('id', '=', id)
       .first();
   }
 
-  public deleteComment(id: number) {
-    return knex('comment')
+  public deleteReview(id: number) {
+    return knex('review')
       .where('id', '=', id)
       .del();
   }
 
-  public editComment({ id, content }: Comment & Identifier) {
-    return knex('comment')
+  public editReview({ id, content }: Review & Identifier) {
+    return knex('review')
       .where('id', '=', id)
       .update({
         content
       });
+  }
+
+  public getReviewCommentFromReview(reviewId: number) {
+    return knex('review_comment')
+      .where('review_id', '=', reviewId)
+      .first();
   }
 }

@@ -8,7 +8,7 @@ import EDIT_POST from '@gqlapp/post-client-react/graphql/EditPost.graphql';
 import DELETE_POST from '@gqlapp/post-client-react/graphql/DeletePost.graphql';
 import POSTS_SUBSCRIPTION from '@gqlapp/post-client-react/graphql/PostsSubscription.graphql';
 
-describe('Post and comments example API works', () => {
+describe('Post and reviews example API works', () => {
   let apollo: any;
 
   beforeAll(() => {
@@ -46,7 +46,7 @@ describe('Post and comments example API works', () => {
     });
   });
 
-  it('Query single post with comments works', async () => {
+  it('Query single post with reviews works', async () => {
     const result = await apollo.query({ query: POST_QUERY, variables: { id: 1 } });
 
     expect(result.data).to.deep.equal({
@@ -55,16 +55,16 @@ describe('Post and comments example API works', () => {
         title: 'Post title 1',
         content: 'Post content 1',
         __typename: 'Post',
-        comments: [
+        reviews: [
           {
             id: 1,
-            content: 'Comment title 1 for post 1',
-            __typename: 'Comment'
+            content: 'Review title 1 for post 1',
+            __typename: 'Review'
           },
           {
             id: 2,
-            content: 'Comment title 2 for post 1',
-            __typename: 'Comment'
+            content: 'Review title 2 for post 1',
+            __typename: 'Review'
           }
         ]
       }

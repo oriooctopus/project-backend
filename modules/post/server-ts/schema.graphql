@@ -1,22 +1,26 @@
-# Post
 type Post {
   id: Int!
   title: String!
   content: String!
-  comments: [Comment]
+  reviews: [Review]
 }
 
-# Comment
-type Comment {
+type Review {
   id: Int!
   content: String!
   rating: String!
   userId: Int!
   postId: Int!
+  reviewComment: ReviewComment
   userProfile: UserProfile!
 }
 
-# Edges for Posts
+type ReviewComment {
+  id: Int!
+  comment: String!
+  reviewId: Int!
+}
+
 type PostEdges {
   node: Post
   cursor: Int
@@ -43,18 +47,15 @@ extend type Query {
 }
 
 extend type Mutation {
-  # Create new post
   addPost(input: AddPostInput!): Post
-  # Delete a post
   deletePost(id: Int!): Post
-  # Edit a post
   editPost(input: EditPostInput!): Post
-  # Add comment to post
-  addComment(input: AddCommentInput!): Comment
-  # Delete a comment
-  deleteComment(input: DeleteCommentInput!): Comment
-  # Edit a comment
-  editComment(input: EditCommentInput!): Comment
+  addReview(input: AddReviewInput!): Review
+  deleteReview(input: DeleteReviewInput!): Review
+  editReview(input: EditReviewInput!): Review
+  addReviewComment(input: AddReviewCommentInput!): ReviewComment
+  deleteReviewComment(input: DeleteReviewCommentInput!): ReviewComment
+  editReviewComment(input: EditReviewCommentInput!): ReviewComment
 }
 
 # Input for addPost Mutation
@@ -70,25 +71,41 @@ input EditPostInput {
   content: String!
 }
 
-# Input for addComment Mutation
-input AddCommentInput {
+input AddReviewInput {
   content: String!
-  # Needed for commentUpdated Subscription filter
+  # Needed for reviewUpdated Subscription filter
   postId: Int!
 }
 
-# Input for editComment Mutation
-input DeleteCommentInput {
+input DeleteReviewInput {
   id: Int!
-  # Needed for commentUpdated Subscription filter
+  # Needed for reviewUpdated Subscription filter
   postId: Int!
 }
 
-# Input for deleteComment Mutation
-input EditCommentInput {
+input EditReviewInput {
   id: Int!
   content: String!
-  # Needed for commentUpdated Subscription filter
+  # Needed for reviewUpdated Subscription filter
+  postId: Int!
+}
+
+input AddReviewCommentInput {
+  content: String!
+  # Needed for reviewCommentUpdated Subscription filter
+  postId: Int!
+}
+
+input DeleteReviewCommentInput {
+  id: Int!
+  # Needed for reviewCommentUpdated Subscription filter
+  postId: Int!
+}
+
+input EditReviewCommentInput {
+  id: Int!
+  content: String!
+  # Needed for reviewCommentUpdated Subscription filter
   postId: Int!
 }
 
@@ -97,8 +114,8 @@ extend type Subscription {
   postUpdated(id: Int!): UpdatePostPayload
   # Subscription for post list
   postsUpdated(endCursor: Int!): UpdatePostPayload
-  # Subscription for comments
-  commentUpdated(postId: Int!): UpdateCommentPayload
+  reviewUpdated(postId: Int!): UpdateReviewPayload
+  reviewCommentUpdated(reviewId: Int!): UpdateReviewCommentPayload
 }
 
 # Payload for postsUpdated Subscription
@@ -108,10 +125,18 @@ type UpdatePostPayload {
   node: Post
 }
 
-# Payload for commentUpdated Subscription
-type UpdateCommentPayload {
+# Payload for reviewUpdated Subscription
+type UpdateReviewPayload {
   mutation: String!
   id: Int
   postId: Int!
-  node: Comment
+  node: Review
+}
+
+# Payload for reviewUpdated Subscription
+type UpdateReviewCommentPayload {
+  mutation: String!
+  id: Int
+  postId: Int!
+  node: ReviewComment
 }
