@@ -1,7 +1,7 @@
 exports.up = function(knex, Promise) {
   return Promise.all([
     knex.schema
-      .createTable('post', (table) => {
+      .createTable('restaurant', (table) => {
         table.increments();
         table.string('title');
         table.string('content');
@@ -10,10 +10,10 @@ exports.up = function(knex, Promise) {
       .createTable('review', (table) => {
         table.increments();
         table
-          .integer('post_id')
+          .integer('restaurant_id')
           .unsigned()
           .references('id')
-          .inTable('post')
+          .inTable('restaurant')
           .onDelete('CASCADE');
         table
           .integer('user_id')
@@ -44,6 +44,6 @@ exports.down = function(knex, Promise) {
   return Promise.all([
     knex.schema.dropTable('review_comment'),
     knex.schema.dropTable('review'),
-    knex.schema.dropTable('post'),
+    knex.schema.dropTable('restaurant'),
   ]);
 };

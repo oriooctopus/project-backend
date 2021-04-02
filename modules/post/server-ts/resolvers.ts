@@ -1,24 +1,24 @@
 import { PubSub, withFilter } from 'graphql-subscriptions';
 import { createBatchResolver } from 'graphql-resolve-batch';
 // interfaces
-import { Post, Review, Identifier } from './sql';
+import { Restaurant, Review, Identifier } from './sql';
 
 interface Edges {
   cursor: number;
-  node: Post & Identifier;
+  node: Restaurant & Identifier;
 }
 
-interface PostsParams {
+interface RestaurantsParams {
   limit: number;
   after: number;
 }
 
-interface PostInput {
-  input: Post;
+interface RestaurantInput {
+  input: Restaurant;
 }
 
-interface PostInputWithId {
-  input: Post & Identifier;
+interface RestaurantInputWithId {
+  input: Restaurant & Identifier;
 }
 
 interface ReviewInput {
@@ -37,27 +37,27 @@ interface ReviewCommentInputWithId {
   input: ReviewComment & Identifier;
 }
 
-const POST_SUBSCRIPTION = 'post_subscription';
-const POSTS_SUBSCRIPTION = 'posts_subscription';
+const RESTAURANT_SUBSCRIPTION = 'restaurant_subscription';
+const RESTAURANTS_SUBSCRIPTION = 'restaurants_subscription';
 const REVIEW_SUBSCRIPTION = 'review_subscription';
 const REVIEW_COMMENT_SUBSCRIPTION = 'review_comment_subscription';
 
 export default (pubsub: PubSub) => ({
   Query: {
-    async posts(
+    async restaurants(
       obj: any,
-      { limit, after }: PostsParams,
+      { limit, after }: RestaurantsParams,
       context: any,
     ) {
       const edgesArray: Edges[] = [];
-      const posts = await context.Post.postsPagination(limit, after);
-      const total = (await context.Post.getTotal()).count;
+      const restaurants = await context.Restaurant.restaurantsPagination(limit, after);
+      const total = (await context.Restaurant.getTotal()).count;
       const hasNextPage = total > after + limit;
 
-      posts.map((post: Post & Identifier, index: number) => {
+      restaurants.map((restaurant: Restaurant & Identifier, index: number) => {
         edgesArray.push({
           cursor: after + index,
-          node: post,
+          node: restaurant,
         });
       });
       const endCursor =
@@ -74,106 +74,106 @@ export default (pubsub: PubSub) => ({
         },
       };
     },
-    post(obj: any, { id }: Identifier, context: any) {
-      return context.Post.post(id);
+    restaurant(obj: any, { id }: Identifier, context: any) {
+      return context.Restaurant.restaurant(id);
     },
   },
   Review: {
     reviewComment({ id }: Identifier, _: any, context: any) {
-      return context.Post.getReviewCommentFromReview(id);
+      return context.Restaurant.getReviewCommentFromReview(id);
     },
     userProfile({ userId }: Review, _: any, context: any) {
       return context.User.getUserProfile(userId);
     },
   },
-  Post: {
+  Restaurant: {
     reviews: createBatchResolver((sources, args, context) => {
-      return context.Post.getReviewsForPostIds(
+      return context.Restaurant.getReviewsForRestaurantIds(
         sources.map(({ id }) => id),
       );
     }),
     averageRating({ id }: Identifier, _: any, context: any) {
-      console.log('post id for average rating', id);
-      return context.Post.getAverageRating(id);
+      console.log('restaurant id for average rating', id);
+      return context.Restaurant.getAverageRating(id);
     },
     totalReviews({ id }: Identifier, _: any, context: any) {
-      console.log('post id for total reviews', id);
-      return context.Post.getTotalReviews(id);
+      console.log('restaurant id for total reviews', id);
+      return context.Restaurant.getTotalReviews(id);
     },
   },
   Mutation: {
-    async addPost(obj: any, { input }: PostInput, context: any) {
-      const [id] = await context.Post.addPost(input);
-      const post = await context.Post.post(id);
-      // publish for post list
-      pubsub.publish(POSTS_SUBSCRIPTION, {
-        postsUpdated: {
+    async addRestaurant(obj: any, { input }: RestaurantInput, context: any) {
+      const [id] = await context.Restaurant.addRestaurant(input);
+      const restaurant = await context.Restaurant.restaurant(id);
+      // publish for restaurant list
+      pubsub.publish(RESTAURANTS_SUBSCRIPTION, {
+        restaurantsUpdated: {
           mutation: 'CREATED',
           id,
-          node: post,
+          node: restaurant,
         },
       });
-      return post;
+      return restaurant;
     },
-    async deletePost(obj: any, { id }: Identifier, context: any) {
-      const post = await context.Post.post(id);
-      const isDeleted = await context.Post.deletePost(id);
+    async deleteRestaurant(obj: any, { id }: Identifier, context: any) {
+      const restaurant = await context.Restaurant.restaurant(id);
+      const isDeleted = await context.Restaurant.deleteRestaurant(id);
       if (isDeleted) {
-        // publish for post list
-        pubsub.publish(POSTS_SUBSCRIPTION, {
-          postsUpdated: {
+        // publish for restaurant list
+        pubsub.publish(RESTAURANTS_SUBSCRIPTION, {
+          restaurantsUpdated: {
             mutation: 'DELETED',
             id,
-            node: post,
+            node: restaurant,
           },
         });
-        // publish for edit post page
-        pubsub.publish(POST_SUBSCRIPTION, {
-          postUpdated: {
+        // publish for edit restaurant page
+        pubsub.publish(RESTAURANT_SUBSCRIPTION, {
+          restaurantUpdated: {
             mutation: 'DELETED',
             id,
-            node: post,
+            node: restaurant,
           },
         });
-        return { id: post.id };
+        return { id: restaurant.id };
       } else {
         return { id: null };
       }
     },
-    async editPost(
+    async editRestaurant(
       obj: any,
-      { input }: PostInputWithId,
+      { input }: RestaurantInputWithId,
       context: any,
     ) {
-      await context.Post.editPost(input);
-      const post = await context.Post.post(input.id);
-      // publish for post list
-      pubsub.publish(POSTS_SUBSCRIPTION, {
-        postsUpdated: {
+      await context.Restaurant.editRestaurant(input);
+      const restaurant = await context.Restaurant.restaurant(input.id);
+      // publish for restaurant list
+      pubsub.publish(RESTAURANTS_SUBSCRIPTION, {
+        restaurantsUpdated: {
           mutation: 'UPDATED',
-          id: post.id,
-          node: post,
+          id: restaurant.id,
+          node: restaurant,
         },
       });
-      // publish for edit post page
-      pubsub.publish(POST_SUBSCRIPTION, {
-        postUpdated: {
+      // publish for edit restaurant page
+      pubsub.publish(RESTAURANT_SUBSCRIPTION, {
+        restaurantUpdated: {
           mutation: 'UPDATED',
-          id: post.id,
-          node: post,
+          id: restaurant.id,
+          node: restaurant,
         },
       });
-      return post;
+      return restaurant;
     },
     async addReview(obj: any, { input }: ReviewInput, context: any) {
-      const [id] = await context.Post.addReview(input);
-      const review = await context.Post.getReview(id);
-      // publish for edit post page
+      const [id] = await context.Restaurant.addReview(input);
+      const review = await context.Restaurant.getReview(id);
+      // publish for edit restaurant page
       pubsub.publish(REVIEW_SUBSCRIPTION, {
         reviewUpdated: {
           mutation: 'CREATED',
           id: review.id,
-          postId: input.postId,
+          restaurantId: input.restaurantId,
           node: review,
         },
       });
@@ -182,17 +182,17 @@ export default (pubsub: PubSub) => ({
     async deleteReview(
       obj: any,
       {
-        input: { id, postId },
+        input: { id, restaurantId },
       }: ReviewInputWithId,
       context: any,
     ) {
-      await context.Post.deleteReview(id);
-      // publish for edit post page
+      await context.Restaurant.deleteReview(id);
+      // publish for edit restaurant page
       pubsub.publish(REVIEW_SUBSCRIPTION, {
         reviewUpdated: {
           mutation: 'DELETED',
           id,
-          postId,
+          restaurantId,
           node: null,
         },
       });
@@ -203,14 +203,14 @@ export default (pubsub: PubSub) => ({
       { input }: ReviewInputWithId,
       context: any,
     ) {
-      await context.Post.editReview(input);
-      const review = await context.Post.getReview(input.id);
-      // publish for edit post page
+      await context.Restaurant.editReview(input);
+      const review = await context.Restaurant.getReview(input.id);
+      // publish for edit restaurant page
       pubsub.publish(REVIEW_SUBSCRIPTION, {
         reviewUpdated: {
           mutation: 'UPDATED',
           id: input.id,
-          postId: input.postId,
+          restaurantId: input.restaurantId,
           node: review,
         },
       });
@@ -221,14 +221,14 @@ export default (pubsub: PubSub) => ({
       { input }: ReviewCommentInput,
       context: any,
     ) {
-      const [id] = await context.Post.addReviewComment(input);
-      const reviewComment = await context.Post.getReviewComment(id);
-      // publish for edit post page
+      const [id] = await context.Restaurant.addReviewComment(input);
+      const reviewComment = await context.Restaurant.getReviewComment(id);
+      // publish for edit restaurant page
       pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
         reviewCommentUpdated: {
           mutation: 'CREATED',
           id: reviewComment.id,
-          postId: input.postId,
+          restaurantId: input.restaurantId,
           node: reviewComment,
         },
       });
@@ -237,17 +237,17 @@ export default (pubsub: PubSub) => ({
     async deleteReviewComment(
       obj: any,
       {
-        input: { id, postId },
+        input: { id, restaurantId },
       }: ReviewCommentInputWithId,
       context: any,
     ) {
-      await context.Post.deleteReviewComment(id);
-      // publish for edit post page
+      await context.Restaurant.deleteReviewComment(id);
+      // publish for edit restaurant page
       pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
         reviewCommentUpdated: {
           mutation: 'DELETED',
           id,
-          postId,
+          restaurantId,
           node: null,
         },
       });
@@ -258,16 +258,16 @@ export default (pubsub: PubSub) => ({
       { input }: ReviewCommentInputWithId,
       context: any,
     ) {
-      await context.Post.editReviewComment(input);
-      const reviewComment = await context.Post.getReviewComment(
+      await context.Restaurant.editReviewComment(input);
+      const reviewComment = await context.Restaurant.getReviewComment(
         input.id,
       );
-      // publish for edit post page
+      // publish for edit restaurant page
       pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
         reviewCommentUpdated: {
           mutation: 'UPDATED',
           id: input.id,
-          postId: input.postId,
+          restaurantId: input.restaurantId,
           node: reviewComment,
         },
       });
@@ -275,19 +275,19 @@ export default (pubsub: PubSub) => ({
     },
   },
   Subscription: {
-    postUpdated: {
+    restaurantUpdated: {
       subscribe: withFilter(
-        () => pubsub.asyncIterator(POST_SUBSCRIPTION),
+        () => pubsub.asyncIterator(RESTAURANT_SUBSCRIPTION),
         (payload, variables) => {
-          return payload.postUpdated.id === variables.id;
+          return payload.restaurantUpdated.id === variables.id;
         },
       ),
     },
-    postsUpdated: {
+    restaurantsUpdated: {
       subscribe: withFilter(
-        () => pubsub.asyncIterator(POSTS_SUBSCRIPTION),
+        () => pubsub.asyncIterator(RESTAURANTS_SUBSCRIPTION),
         (payload, variables) => {
-          return variables.endCursor <= payload.postsUpdated.id;
+          return variables.endCursor <= payload.restaurantsUpdated.id;
         },
       ),
     },
@@ -295,7 +295,7 @@ export default (pubsub: PubSub) => ({
       subscribe: withFilter(
         () => pubsub.asyncIterator(REVIEW_SUBSCRIPTION),
         (payload, variables) => {
-          return payload.reviewUpdated.postId === variables.postId;
+          return payload.reviewUpdated.restaurantId === variables.restaurantId;
         },
       ),
     },
@@ -304,7 +304,7 @@ export default (pubsub: PubSub) => ({
         () => pubsub.asyncIterator(REVIEW_COMMENT_SUBSCRIPTION),
         (payload, variables) => {
           return (
-            payload.reviewCommentUpdated.postId === variables.postId
+            payload.reviewCommentUpdated.restaurantId === variables.restaurantId
           );
         },
       ),

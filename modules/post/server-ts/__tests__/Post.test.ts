@@ -1,72 +1,72 @@
 import { expect } from 'chai';
 import { getApollo } from '@gqlapp/testing-server-ts';
 
-import POSTS_QUERY from '@gqlapp/post-client-react/graphql/PostsQuery.graphql';
-import POST_QUERY from '@gqlapp/post-client-react/graphql/PostQuery.graphql';
-import ADD_POST from '@gqlapp/post-client-react/graphql/AddPost.graphql';
-import EDIT_POST from '@gqlapp/post-client-react/graphql/EditPost.graphql';
-import DELETE_POST from '@gqlapp/post-client-react/graphql/DeletePost.graphql';
-import POSTS_SUBSCRIPTION from '@gqlapp/post-client-react/graphql/PostsSubscription.graphql';
+import RESTAURANTS_QUERY from '@gqlapp/restaurant-client-react/graphql/RestaurantsQuery.graphql';
+import RESTAURANT_QUERY from '@gqlapp/restaurant-client-react/graphql/RestaurantQuery.graphql';
+import ADD_RESTAURANT from '@gqlapp/restaurant-client-react/graphql/AddRestaurant.graphql';
+import EDIT_RESTAURANT from '@gqlapp/restaurant-client-react/graphql/EditRestaurant.graphql';
+import DELETE_RESTAURANT from '@gqlapp/restaurant-client-react/graphql/DeleteRestaurant.graphql';
+import RESTAURANTS_SUBSCRIPTION from '@gqlapp/restaurant-client-react/graphql/RestaurantsSubscription.graphql';
 
-describe('Post and reviews example API works', () => {
+describe('Restaurant and reviews example API works', () => {
   let apollo: any;
 
   beforeAll(() => {
     apollo = getApollo();
   });
 
-  it('Query post list works', async () => {
+  it('Query restaurant list works', async () => {
     const result = await apollo.query({
-      query: POSTS_QUERY,
+      query: RESTAURANTS_QUERY,
       variables: { limit: 1, after: 0 }
     });
 
     expect(result.data).to.deep.equal({
-      posts: {
+      restaurants: {
         totalCount: 20,
         edges: [
           {
             cursor: 0,
             node: {
               id: 20,
-              title: 'Post title 20',
-              content: 'Post content 20',
-              __typename: 'Post'
+              title: 'Restaurant title 20',
+              content: 'Restaurant content 20',
+              __typename: 'Restaurant'
             },
-            __typename: 'PostEdges'
+            __typename: 'RestaurantEdges'
           }
         ],
         pageInfo: {
           endCursor: 0,
           hasNextPage: true,
-          __typename: 'PostPageInfo'
+          __typename: 'RestaurantPageInfo'
         },
-        __typename: 'Posts'
+        __typename: 'Restaurants'
       }
     });
   });
 
-  it('Query single post with reviews works', async () => {
+  it('Query single restaurant with reviews works', async () => {
     const result = await apollo.query({
-      query: POST_QUERY,
+      query: RESTAURANT_QUERY,
       variables: { id: 1 }
     });
 
     expect(result.data).to.deep.equal({
-      post: {
+      restaurant: {
         id: 1,
-        title: 'Post title 1',
-        content: 'Post content 1',
-        __typename: 'Post',
+        title: 'Restaurant title 1',
+        content: 'Restaurant content 1',
+        __typename: 'Restaurant',
         reviews: [
           {
             id: 1,
-            content: 'Review title 1 for post 1',
+            content: 'Review title 1 for restaurant 1',
             __typename: 'Review'
           },
           {
             id: 2,
-            content: 'Review title 2 for post 1',
+            content: 'Review title 2 for restaurant 1',
             __typename: 'Review'
           }
         ]
@@ -74,35 +74,35 @@ describe('Post and reviews example API works', () => {
     });
   });
 
-  it('Publishes post on add', done => {
+  it('Publishes restaurant on add', done => {
     apollo.mutate({
-      mutation: ADD_POST,
+      mutation: ADD_RESTAURANT,
       variables: {
         input: {
-          title: 'New post 1',
-          content: 'New post content 1'
+          title: 'New restaurant 1',
+          content: 'New restaurant content 1'
         }
       }
     });
 
     const subscription = apollo
       .subscribe({
-        query: POSTS_SUBSCRIPTION,
+        query: RESTAURANTS_SUBSCRIPTION,
         variables: { endCursor: 10 }
       })
       .subscribe({
         next(data: any) {
           expect(data).to.deep.equal({
             data: {
-              postsUpdated: {
+              restaurantsUpdated: {
                 mutation: 'CREATED',
                 node: {
                   id: 21,
-                  title: 'New post 1',
-                  content: 'New post content 1',
-                  __typename: 'Post'
+                  title: 'New restaurant 1',
+                  content: 'New restaurant content 1',
+                  __typename: 'Restaurant'
                 },
-                __typename: 'UpdatePostPayload'
+                __typename: 'UpdateRestaurantPayload'
               }
             }
           });
@@ -112,46 +112,46 @@ describe('Post and reviews example API works', () => {
       });
   });
 
-  it('Adding post works', async () => {
+  it('Adding restaurant works', async () => {
     const result = await apollo.query({
-      query: POSTS_QUERY,
+      query: RESTAURANTS_QUERY,
       variables: { limit: 1, after: 0 }
     });
-    expect(result.data.posts).to.have.property('totalCount', 21);
-    expect(result.data.posts).to.have.nested.property('edges[0].node.title', 'New post 1');
-    expect(result.data.posts).to.have.nested.property('edges[0].node.content', 'New post content 1');
+    expect(result.data.restaurants).to.have.property('totalCount', 21);
+    expect(result.data.restaurants).to.have.nested.property('edges[0].node.title', 'New restaurant 1');
+    expect(result.data.restaurants).to.have.nested.property('edges[0].node.content', 'New restaurant content 1');
   });
 
-  it('Publishes post on update', done => {
+  it('Publishes restaurant on update', done => {
     apollo.mutate({
-      mutation: EDIT_POST,
+      mutation: EDIT_RESTAURANT,
       variables: {
         input: {
           id: 21,
-          title: 'New post 2',
-          content: 'New post content 2'
+          title: 'New restaurant 2',
+          content: 'New restaurant content 2'
         }
       }
     });
 
     const subscription = apollo
       .subscribe({
-        query: POSTS_SUBSCRIPTION,
+        query: RESTAURANTS_SUBSCRIPTION,
         variables: { endCursor: 10 }
       })
       .subscribe({
         next(data: any) {
           expect(data).to.deep.equal({
             data: {
-              postsUpdated: {
+              restaurantsUpdated: {
                 mutation: 'UPDATED',
                 node: {
                   id: 21,
-                  title: 'New post 2',
-                  content: 'New post content 2',
-                  __typename: 'Post'
+                  title: 'New restaurant 2',
+                  content: 'New restaurant content 2',
+                  __typename: 'Restaurant'
                 },
-                __typename: 'UpdatePostPayload'
+                __typename: 'UpdateRestaurantPayload'
               }
             }
           });
@@ -161,40 +161,40 @@ describe('Post and reviews example API works', () => {
       });
   });
 
-  it('Updating post works', async () => {
+  it('Updating restaurant works', async () => {
     const result = await apollo.query({
-      query: POSTS_QUERY,
+      query: RESTAURANTS_QUERY,
       variables: { limit: 1, after: 0 }
     });
-    expect(result.data.posts).to.have.property('totalCount', 21);
-    expect(result.data.posts).to.have.nested.property('edges[0].node.title', 'New post 2');
-    expect(result.data.posts).to.have.nested.property('edges[0].node.content', 'New post content 2');
+    expect(result.data.restaurants).to.have.property('totalCount', 21);
+    expect(result.data.restaurants).to.have.nested.property('edges[0].node.title', 'New restaurant 2');
+    expect(result.data.restaurants).to.have.nested.property('edges[0].node.content', 'New restaurant content 2');
   });
 
-  it('Publishes post on removal', done => {
+  it('Publishes restaurant on removal', done => {
     apollo.mutate({
-      mutation: DELETE_POST,
+      mutation: DELETE_RESTAURANT,
       variables: { id: 21 }
     });
 
     const subscription = apollo
       .subscribe({
-        query: POSTS_SUBSCRIPTION,
+        query: RESTAURANTS_SUBSCRIPTION,
         variables: { endCursor: 10 }
       })
       .subscribe({
         next(data: any) {
           expect(data).to.deep.equal({
             data: {
-              postsUpdated: {
+              restaurantsUpdated: {
                 mutation: 'DELETED',
                 node: {
                   id: 21,
-                  title: 'New post 2',
-                  content: 'New post content 2',
-                  __typename: 'Post'
+                  title: 'New restaurant 2',
+                  content: 'New restaurant content 2',
+                  __typename: 'Restaurant'
                 },
-                __typename: 'UpdatePostPayload'
+                __typename: 'UpdateRestaurantPayload'
               }
             }
           });
@@ -204,13 +204,13 @@ describe('Post and reviews example API works', () => {
       });
   });
 
-  it('Deleting post works', async () => {
+  it('Deleting restaurant works', async () => {
     const result = await apollo.query({
-      query: POSTS_QUERY,
+      query: RESTAURANTS_QUERY,
       variables: { limit: 2, after: 0 }
     });
-    expect(result.data.posts).to.have.property('totalCount', 20);
-    expect(result.data.posts).to.have.nested.property('edges[0].node.title', 'Post title 20');
-    expect(result.data.posts).to.have.nested.property('edges[0].node.content', 'Post content 20');
+    expect(result.data.restaurants).to.have.property('totalCount', 20);
+    expect(result.data.restaurants).to.have.nested.property('edges[0].node.title', 'Restaurant title 20');
+    expect(result.data.restaurants).to.have.nested.property('edges[0].node.content', 'Restaurant content 20');
   });
 });

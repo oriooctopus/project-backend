@@ -71,10 +71,30 @@ class User {
 
       if (has(filter, 'searchText') && filter.searchText !== '') {
         queryBuilder.where(function() {
-          this.where(knex.raw('LOWER(??) LIKE LOWER(?)', ['username', `%${filter.searchText}%`]))
-            .orWhere(knex.raw('LOWER(??) LIKE LOWER(?)', ['email', `%${filter.searchText}%`]))
-            .orWhere(knex.raw('LOWER(??) LIKE LOWER(?)', ['first_name', `%${filter.searchText}%`]))
-            .orWhere(knex.raw('LOWER(??) LIKE LOWER(?)', ['last_name', `%${filter.searchText}%`]));
+          this.where(
+            knex.raw('LOWER(??) LIKE LOWER(?)', [
+              'username',
+              `%${filter.searchText}%`,
+            ]),
+          )
+            .orWhere(
+              knex.raw('LOWER(??) LIKE LOWER(?)', [
+                'email',
+                `%${filter.searchText}%`,
+              ]),
+            )
+            .orWhere(
+              knex.raw('LOWER(??) LIKE LOWER(?)', [
+                'first_name',
+                `%${filter.searchText}%`,
+              ]),
+            )
+            .orWhere(
+              knex.raw('LOWER(??) LIKE LOWER(?)', [
+                'last_name',
+                `%${filter.searchText}%`,
+              ]),
+            );
         });
       }
     }
@@ -138,7 +158,15 @@ class User {
   async getUserWithSerial(serial) {
     return camelizeKeys(
       await knex
-        .select('u.id', 'u.username', 'u.role', 'u.is_active', 'ca.serial', 'up.first_name', 'up.last_name')
+        .select(
+          'u.id',
+          'u.username',
+          'u.role',
+          'u.is_active',
+          'ca.serial',
+          'up.first_name',
+          'up.last_name',
+        )
         .from('user AS u')
         .leftJoin('auth_certificate AS ca', 'ca.user_id', 'u.id')
         .leftJoin('user_profile AS up', 'up.user_id', 'u.id')
@@ -147,7 +175,10 @@ class User {
     );
   }
 
-  register({ username, email, role = 'user', isActive }, passwordHash) {
+  register(
+    { username, email, role = 'user', isActive },
+    passwordHash,
+  ) {
     return knex('user')
       .returning('id')
       .insert(
@@ -194,7 +225,9 @@ class User {
   }
 
   editUser({ id, username, email, role, isActive }, passwordHash) {
-    const localAuthInput = passwordHash ? { email, passwordHash } : { email };
+    const localAuthInput = passwordHash
+      ? { email, passwordHash }
+      : { email };
     return knex('user')
       .update(
         decamelizeKeys({
@@ -386,7 +419,15 @@ class User {
   async getUserByUsername(username) {
     return camelizeKeys(
       await knex
-        .select('u.id', 'u.username', 'u.role', 'u.is_active', 'u.email', 'up.first_name', 'up.last_name')
+        .select(
+          'u.id',
+          'u.username',
+          'u.role',
+          'u.is_active',
+          'u.email',
+          'up.first_name',
+          'up.last_name',
+        )
         .from('user AS u')
         .where('u.username', '=', username)
         .leftJoin('user_profile AS up', 'up.user_id', 'u.id')

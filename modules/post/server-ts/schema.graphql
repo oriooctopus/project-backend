@@ -1,4 +1,4 @@
-type Post {
+type Restaurant {
   id: Int!
   title: String!
   content: String!
@@ -12,7 +12,7 @@ type Review {
   content: String!
   rating: Int!
   userId: Int!
-  postId: Int!
+  restaurantId: Int!
   reviewComment: ReviewComment
   userProfile: UserProfile!
 }
@@ -23,35 +23,35 @@ type ReviewComment {
   reviewId: Int!
 }
 
-type PostEdges {
-  node: Post
+type RestaurantEdges {
+  node: Restaurant
   cursor: Int
 }
 
-# PageInfo for Posts
-type PostPageInfo {
+# PageInfo for Restaurants
+type RestaurantPageInfo {
   endCursor: Int
   hasNextPage: Boolean
 }
 
-# Posts relay-style pagination query
-type Posts {
+# Restaurants relay-style pagination query
+type Restaurants {
   totalCount: Int
-  edges: [PostEdges]
-  pageInfo: PostPageInfo
+  edges: [RestaurantEdges]
+  pageInfo: RestaurantPageInfo
 }
 
 extend type Query {
-  # Posts pagination query
-  posts(limit: Int, after: Int): Posts
-  # Post
-  post(id: Int!): Post
+  # Restaurants pagination query
+  restaurants(limit: Int, after: Int): Restaurants
+  # Restaurant
+  restaurant(id: Int!): Restaurant
 }
 
 extend type Mutation {
-  addPost(input: AddPostInput!): Post
-  deletePost(id: Int!): Post
-  editPost(input: EditPostInput!): Post
+  addRestaurant(input: AddRestaurantInput!): Restaurant
+  deleteRestaurant(id: Int!): Restaurant
+  editRestaurant(input: EditRestaurantInput!): Restaurant
   addReview(input: AddReviewInput!): Review
   deleteReview(input: DeleteReviewInput!): Review
   editReview(input: EditReviewInput!): Review
@@ -60,14 +60,14 @@ extend type Mutation {
   editReviewComment(input: EditReviewCommentInput!): ReviewComment
 }
 
-# Input for addPost Mutation
-input AddPostInput {
+# Input for addRestaurant Mutation
+input AddRestaurantInput {
   title: String!
   content: String!
 }
 
-# Input for editPost Mutation
-input EditPostInput {
+# Input for editRestaurant Mutation
+input EditRestaurantInput {
   id: Int!
   title: String!
   content: String!
@@ -76,62 +76,62 @@ input EditPostInput {
 input AddReviewInput {
   content: String!
   # Needed for reviewUpdated Subscription filter
-  postId: Int!
+  restaurantId: Int!
 }
 
 input DeleteReviewInput {
   id: Int!
   # Needed for reviewUpdated Subscription filter
-  postId: Int!
+  restaurantId: Int!
 }
 
 input EditReviewInput {
   id: Int!
   content: String!
   # Needed for reviewUpdated Subscription filter
-  postId: Int!
+  restaurantId: Int!
 }
 
 input AddReviewCommentInput {
   content: String!
   # Needed for reviewCommentUpdated Subscription filter
-  postId: Int!
+  restaurantId: Int!
 }
 
 input DeleteReviewCommentInput {
   id: Int!
   # Needed for reviewCommentUpdated Subscription filter
-  postId: Int!
+  restaurantId: Int!
 }
 
 input EditReviewCommentInput {
   id: Int!
   content: String!
   # Needed for reviewCommentUpdated Subscription filter
-  postId: Int!
+  restaurantId: Int!
 }
 
 extend type Subscription {
-  # Subscription for when editing a post
-  postUpdated(id: Int!): UpdatePostPayload
-  # Subscription for post list
-  postsUpdated(endCursor: Int!): UpdatePostPayload
-  reviewUpdated(postId: Int!): UpdateReviewPayload
+  # Subscription for when editing a restaurant
+  restaurantUpdated(id: Int!): UpdateRestaurantPayload
+  # Subscription for restaurant list
+  restaurantsUpdated(endCursor: Int!): UpdateRestaurantPayload
+  reviewUpdated(restaurantId: Int!): UpdateReviewPayload
   reviewCommentUpdated(reviewId: Int!): UpdateReviewCommentPayload
 }
 
-# Payload for postsUpdated Subscription
-type UpdatePostPayload {
+# Payload for restaurantsUpdated Subscription
+type UpdateRestaurantPayload {
   mutation: String!
   id: Int!
-  node: Post
+  node: Restaurant
 }
 
 # Payload for reviewUpdated Subscription
 type UpdateReviewPayload {
   mutation: String!
   id: Int
-  postId: Int!
+  restaurantId: Int!
   node: Review
 }
 
@@ -139,6 +139,6 @@ type UpdateReviewPayload {
 type UpdateReviewCommentPayload {
   mutation: String!
   id: Int
-  postId: Int!
+  restaurantId: Int!
   node: ReviewComment
 }

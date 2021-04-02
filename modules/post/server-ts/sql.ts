@@ -2,13 +2,13 @@ import { decamelizeKeys } from 'humps';
 
 import { knex, returnId, orderedFor } from '@gqlapp/database-server-ts';
 
-export interface Post {
+export interface Restaurant {
   title: string;
   content: string;
 }
 
 export interface Review {
-  postId: number;
+  restaurantId: number;
   content: string;
   userId: number;
   rating: number;
@@ -23,79 +23,79 @@ export interface Identifier {
   id: number;
 }
 
-export default class PostDAO {
+export default class RestaurantDAO {
 
 
-  public refreshPostRatingsData() {
+  public refreshRestaurantRatingsData() {
 
   }
 
-  public postsPagination(limit: number, after: number) {
+  public restaurantsPagination(limit: number, after: number) {
     return knex
       .select('id', 'title', 'content')
-      .from('post')
+      .from('restaurant')
       .orderBy('id', 'desc')
       .limit(limit)
       .offset(after);
   }
 
-  public async getReviewsForPostIds(postIds: number[]) {
+  public async getReviewsForRestaurantIds(restaurantIds: number[]) {
     const res = await knex
-      .select('id', 'content', 'rating', 'post_id AS postId', 'user_id AS userId')
+      .select('id', 'content', 'rating', 'restaurant_id AS restaurantId', 'user_id AS userId')
       .from('review')
-      .whereIn('post_id', postIds);
+      .whereIn('restaurant_id', restaurantIds);
 
-    return orderedFor(res, postIds, 'postId', false);
+    return orderedFor(res, restaurantIds, 'restaurantId', false);
   }
 
   public getTotal() {
-    return knex('post')
+    return knex('restaurant')
       .countDistinct('id as count')
       .first();
   }
 
-  public post(id: number) {
+  public restaurant(id: number) {
     return knex
       .select('id', 'title', 'content')
-      .from('post')
+      .from('restaurant')
       .where('id', '=', id)
       .first();
   }
 
-  public addPost(params: Post) {
-    return returnId(knex('post')).insert(params);
+  public addRestaurant(params: Restaurant) {
+    return returnId(knex('restaurant')).insert(params);
   }
 
-  public async getTotalReviews(postId: number) {
+  public async getTotalReviews(restaurantId: number) {
     return (await knex('review')
       .count('id as count')
-      .where(decamelizeKeys({ postId }))
+      .where(decamelizeKeys({ restaurantId }))
       .first()).count;
   }
 
-  public async getAverageRating(postId: number) {
+  public async getAverageRating(restaurantId: number) {
     return (await knex('review')
       .avg('rating as averageRating')
-      .where(decamelizeKeys({ postId }))
+      .where(decamelizeKeys({ restaurantId }))
       .first()).averageRating;
   }
 
-  public deletePost(id: number) {
-    return knex('post')
+  public deleteRestaurant(id: number) {
+    return knex('restaurant')
       .where('id', '=', id)
       .del();
   }
 
-  public editPost({ id, title, content }: Post & Identifier) {
-    return knex('post')
+  public editRestaurant({ id, title, content }: Restaurant & Identifier) {
+    return knex('restaurant')
       .where('id', '=', id)
       .update({ title, content });
   }
 
-  public addReview({ content, postId, rating }: Review) {
+  public addReview({ content, restaurantId, rating }: Review) {
     return returnId(knex('review')).insert({
       content,
-      post_id: postId,
+      restaurant_id: restaurantId,
       rating,
     });
   }
