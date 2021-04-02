@@ -44,7 +44,11 @@ const REVIEW_COMMENT_SUBSCRIPTION = 'review_comment_subscription';
 
 export default (pubsub: PubSub) => ({
   Query: {
-    async posts(obj: any, { limit, after }: PostsParams, context: any) {
+    async posts(
+      obj: any,
+      { limit, after }: PostsParams,
+      context: any,
+    ) {
       const edgesArray: Edges[] = [];
       const posts = await context.Post.postsPagination(limit, after);
       const total = (await context.Post.getTotal()).count;
@@ -53,36 +57,49 @@ export default (pubsub: PubSub) => ({
       posts.map((post: Post & Identifier, index: number) => {
         edgesArray.push({
           cursor: after + index,
-          node: post
+          node: post,
         });
       });
-      const endCursor = edgesArray.length > 0 ? edgesArray[edgesArray.length - 1].cursor : 0;
+      const endCursor =
+        edgesArray.length > 0
+          ? edgesArray[edgesArray.length - 1].cursor
+          : 0;
 
       return {
         totalCount: total,
         edges: edgesArray,
         pageInfo: {
           endCursor,
-          hasNextPage
-        }
+          hasNextPage,
+        },
       };
     },
     post(obj: any, { id }: Identifier, context: any) {
       return context.Post.post(id);
-    }
+    },
   },
   Review: {
-    reviewComment({ id }: Identifier, _, context: any) {
+    reviewComment({ id }: Identifier, _: any, context: any) {
       return context.Post.getReviewCommentFromReview(id);
     },
-    userProfile({ userId }: Review, _, context: any) {
+    userProfile({ userId }: Review, _: any, context: any) {
       return context.User.getUserProfile(userId);
-    }
+    },
   },
   Post: {
     reviews: createBatchResolver((sources, args, context) => {
-      return context.Post.getReviewsForPostIds(sources.map(({ id }) => id));
-    })
+      return context.Post.getReviewsForPostIds(
+        sources.map(({ id }) => id),
+      );
+    }),
+    averageRating({ id }: Identifier, _: any, context: any) {
+      console.log('post id for average rating', id);
+      return context.Post.getAverageRating(id);
+    },
+    totalReviews({ id }: Identifier, _: any, context: any) {
+      console.log('post id for total reviews', id);
+      return context.Post.getTotalReviews(id);
+    },
   },
   Mutation: {
     async addPost(obj: any, { input }: PostInput, context: any) {
@@ -93,8 +110,8 @@ export default (pubsub: PubSub) => ({
         postsUpdated: {
           mutation: 'CREATED',
           id,
-          node: post
-        }
+          node: post,
+        },
       });
       return post;
     },
@@ -107,23 +124,27 @@ export default (pubsub: PubSub) => ({
           postsUpdated: {
             mutation: 'DELETED',
             id,
-            node: post
-          }
+            node: post,
+          },
         });
         // publish for edit post page
         pubsub.publish(POST_SUBSCRIPTION, {
           postUpdated: {
             mutation: 'DELETED',
             id,
-            node: post
-          }
+            node: post,
+          },
         });
         return { id: post.id };
       } else {
         return { id: null };
       }
     },
-    async editPost(obj: any, { input }: PostInputWithId, context: any) {
+    async editPost(
+      obj: any,
+      { input }: PostInputWithId,
+      context: any,
+    ) {
       await context.Post.editPost(input);
       const post = await context.Post.post(input.id);
       // publish for post list
@@ -131,16 +152,16 @@ export default (pubsub: PubSub) => ({
         postsUpdated: {
           mutation: 'UPDATED',
           id: post.id,
-          node: post
-        }
+          node: post,
+        },
       });
       // publish for edit post page
       pubsub.publish(POST_SUBSCRIPTION, {
         postUpdated: {
           mutation: 'UPDATED',
           id: post.id,
-          node: post
-        }
+          node: post,
+        },
       });
       return post;
     },
@@ -153,12 +174,18 @@ export default (pubsub: PubSub) => ({
           mutation: 'CREATED',
           id: review.id,
           postId: input.postId,
-          node: review
-        }
+          node: review,
+        },
       });
       return review;
     },
-    async deleteReview(obj: any, { input: { id, postId } }: ReviewInputWithId, context: any) {
+    async deleteReview(
+      obj: any,
+      {
+        input: { id, postId },
+      }: ReviewInputWithId,
+      context: any,
+    ) {
       await context.Post.deleteReview(id);
       // publish for edit post page
       pubsub.publish(REVIEW_SUBSCRIPTION, {
@@ -166,12 +193,16 @@ export default (pubsub: PubSub) => ({
           mutation: 'DELETED',
           id,
           postId,
-          node: null
-        }
+          node: null,
+        },
       });
       return { id };
     },
-    async editReview(obj: any, { input }: ReviewInputWithId, context: any) {
+    async editReview(
+      obj: any,
+      { input }: ReviewInputWithId,
+      context: any,
+    ) {
       await context.Post.editReview(input);
       const review = await context.Post.getReview(input.id);
       // publish for edit post page
@@ -180,12 +211,16 @@ export default (pubsub: PubSub) => ({
           mutation: 'UPDATED',
           id: input.id,
           postId: input.postId,
-          node: review
-        }
+          node: review,
+        },
       });
       return review;
     },
-    async addReviewComment(obj: any, { input }: ReviewCommentInput, context: any) {
+    async addReviewComment(
+      obj: any,
+      { input }: ReviewCommentInput,
+      context: any,
+    ) {
       const [id] = await context.Post.addReviewComment(input);
       const reviewComment = await context.Post.getReviewComment(id);
       // publish for edit post page
@@ -194,12 +229,18 @@ export default (pubsub: PubSub) => ({
           mutation: 'CREATED',
           id: reviewComment.id,
           postId: input.postId,
-          node: reviewComment
-        }
+          node: reviewComment,
+        },
       });
       return reviewComment;
     },
-    async deleteReviewComment(obj: any, { input: { id, postId } }: ReviewCommentInputWithId, context: any) {
+    async deleteReviewComment(
+      obj: any,
+      {
+        input: { id, postId },
+      }: ReviewCommentInputWithId,
+      context: any,
+    ) {
       await context.Post.deleteReviewComment(id);
       // publish for edit post page
       pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
@@ -207,25 +248,31 @@ export default (pubsub: PubSub) => ({
           mutation: 'DELETED',
           id,
           postId,
-          node: null
-        }
+          node: null,
+        },
       });
       return { id };
     },
-    async editReviewComment(obj: any, { input }: ReviewCommentInputWithId, context: any) {
+    async editReviewComment(
+      obj: any,
+      { input }: ReviewCommentInputWithId,
+      context: any,
+    ) {
       await context.Post.editReviewComment(input);
-      const reviewComment = await context.Post.getReviewComment(input.id);
+      const reviewComment = await context.Post.getReviewComment(
+        input.id,
+      );
       // publish for edit post page
       pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
         reviewCommentUpdated: {
           mutation: 'UPDATED',
           id: input.id,
           postId: input.postId,
-          node: reviewComment
-        }
+          node: reviewComment,
+        },
       });
       return reviewComment;
-    }
+    },
   },
   Subscription: {
     postUpdated: {
@@ -233,32 +280,34 @@ export default (pubsub: PubSub) => ({
         () => pubsub.asyncIterator(POST_SUBSCRIPTION),
         (payload, variables) => {
           return payload.postUpdated.id === variables.id;
-        }
-      )
+        },
+      ),
     },
     postsUpdated: {
       subscribe: withFilter(
         () => pubsub.asyncIterator(POSTS_SUBSCRIPTION),
         (payload, variables) => {
           return variables.endCursor <= payload.postsUpdated.id;
-        }
-      )
+        },
+      ),
     },
     reviewUpdated: {
       subscribe: withFilter(
         () => pubsub.asyncIterator(REVIEW_SUBSCRIPTION),
         (payload, variables) => {
           return payload.reviewUpdated.postId === variables.postId;
-        }
-      )
+        },
+      ),
     },
     reviewCommentUpdated: {
       subscribe: withFilter(
         () => pubsub.asyncIterator(REVIEW_COMMENT_SUBSCRIPTION),
         (payload, variables) => {
-          return payload.reviewCommentUpdated.postId === variables.postId;
-        }
-      )
-    }
-  }
+          return (
+            payload.reviewCommentUpdated.postId === variables.postId
+          );
+        },
+      ),
+    },
+  },
 });

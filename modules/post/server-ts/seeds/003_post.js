@@ -19,7 +19,7 @@ export async function seed(knex, Promise) {
           const [reviewId] = await returnId(knex('review')).insert({
             post_id: post[0],
             content: `Review #${jj + 1} for restaurant ${post[0]}`,
-            rating: 5,
+            rating: jj % 2 ? 5 : 1,
             user_id: 1,
           });
           // let's leave some blank for testing and speed purposes

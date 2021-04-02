@@ -1,3 +1,5 @@
+import { decamelizeKeys } from 'humps';
+
 import { knex, returnId, orderedFor } from '@gqlapp/database-server-ts';
 
 export interface Post {
@@ -9,7 +11,7 @@ export interface Review {
   postId: number;
   content: string;
   userId: number;
-  review: string;
+  rating: number;
 }
 
 export interface ReviewComment {
@@ -22,6 +24,12 @@ export interface Identifier {
 }
 
 export default class PostDAO {
+
+
+  public refreshPostRatingsData() {
+
+  }
+
   public postsPagination(limit: number, after: number) {
     return knex
       .select('id', 'title', 'content')
@@ -58,6 +66,20 @@ export default class PostDAO {
     return returnId(knex('post')).insert(params);
   }
 
+  public async getTotalReviews(postId: number) {
+    return (await knex('review')
+      .count('id as count')
+      .where(decamelizeKeys({ postId }))
+      .first()).count;
+  }
+
+  public async getAverageRating(postId: number) {
+    return (await knex('review')
+      .avg('rating as averageRating')
+      .where(decamelizeKeys({ postId }))
+      .first()).averageRating;
+  }
+
   public deletePost(id: number) {
     return knex('post')
       .where('id', '=', id)
@@ -70,16 +92,17 @@ export default class PostDAO {
       .update({ title, content });
   }
 
-  public addReview({ content, postId }: Review) {
+  public addReview({ content, postId, rating }: Review) {
     return returnId(knex('review')).insert({
       content,
-      post_id: postId
+      post_id: postId,
+      rating,
     });
   }
 
   public getReview(id: number) {
     return knex
-      .select('id', 'content')
+      .select('id', 'content', 'rating')
       .from('review')
       .where('id', '=', id)
       .first();
@@ -91,11 +114,12 @@ export default class PostDAO {
       .del();
   }
 
-  public editReview({ id, content }: Review & Identifier) {
+  public editReview({ id, content, rating }: Review & Identifier) {
     return knex('review')
       .where('id', '=', id)
       .update({
-        content
+        content,
+        rating
       });
   }
 

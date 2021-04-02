@@ -5,8 +5,6 @@ exports.up = function(knex, Promise) {
         table.increments();
         table.string('title');
         table.string('content');
-        table.integer('average_rating');
-        table.integer('total_reviews');
         table.timestamps(false, true);
       })
       .createTable('review', (table) => {

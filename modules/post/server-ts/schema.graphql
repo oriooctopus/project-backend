@@ -3,12 +3,14 @@ type Post {
   title: String!
   content: String!
   reviews: [Review]
+  averageRating: Int!
+  totalReviews: Int!
 }
 
 type Review {
   id: Int!
   content: String!
-  rating: String!
+  rating: Int!
   userId: Int!
   postId: Int!
   reviewComment: ReviewComment
