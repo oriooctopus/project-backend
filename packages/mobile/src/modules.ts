@@ -10,7 +10,7 @@ import authentication from '@gqlapp/authentication-client-react';
 
 import ClientModule from '@gqlapp/module-client-react-native';
 
-const post = require('@gqlapp/post-client-react').default;
+// const post = require('@gqlapp/restaurant-client-react').default;
 const upload = require('@gqlapp/upload-client-react').default;
 const pagination = require('@gqlapp/pagination-client-react').default;
 const user = require('@gqlapp/user-client-react').default;
@@ -19,7 +19,7 @@ const modules = new ClientModule(
   validation,
   defaultRouter,
   counter,
-  post,
+  // post,
   upload,
   contact,
   pagination,
