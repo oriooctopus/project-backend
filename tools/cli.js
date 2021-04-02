@@ -4,7 +4,7 @@ require('@babel/register')({
   root,
   cwd: root,
   configFile: root + '/tools/babel.config.js',
-  extensions: ['.js', '.jsx', '.ts', '.tsx']
+  extensions: ['.js', '.jsx', '.ts', '.tsx'],
 });
 
 const prog = require('caporal');
@@ -19,7 +19,7 @@ const commandInvoker = new CommandInvoker(
   addModuleCommand,
   deleteModuleCommand,
   chooseTemplateCommand,
-  deleteStackCommand
+  deleteStackCommand,
 );
 
 prog
@@ -32,7 +32,7 @@ prog
     '[location]',
     'Where should new module be created. [both, server, client]',
     ['both', 'server', 'client'],
-    'both'
+    'both',
   )
   .option('-o, --old', 'Old Structure')
   .action((args, options, logger) => commandInvoker.runAddModule(args, options, logger))
@@ -48,7 +48,7 @@ prog
   .command(
     'deletestack',
     `Delete the stack of technologies for the app.
-List of technologies [react, angular, vue, scala, node]`
+List of technologies [react, angular, vue, scala, node]`,
   )
   .argument('[stackList...]', 'List of technologies [react, angular, vue, scala, node]')
   .option('-l --list', 'Show stack of technologies list')

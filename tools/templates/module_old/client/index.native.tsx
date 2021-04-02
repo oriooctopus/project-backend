@@ -19,17 +19,22 @@ export default new ClientModule({
             navigationOptions: ({ navigation }: any) => ({
               headerTitle: <HeaderTitleWithI18n style="subTitle" />,
               headerLeft: (
-                <IconButton iconName="menu" iconSize={32} iconColor="#0275d8" onPress={() => navigation.openDrawer()} />
+                <IconButton
+                  iconName="menu"
+                  iconSize={32}
+                  iconColor="#0275d8"
+                  onPress={() => navigation.openDrawer()}
+                />
               ),
-              headerStyle: { backgroundColor: '#fff' }
-            })
-          }
+              headerStyle: { backgroundColor: '#fff' },
+            }),
+          },
         }),
         navigationOptions: {
-          drawerLabel: <HeaderTitleWithI18n />
-        }
-      }
-    }
+          drawerLabel: <HeaderTitleWithI18n />,
+        },
+      },
+    },
   ],
-  localization: [{ ns: '$module$', resources }]
+  localization: [{ ns: '$module$', resources }],
 });

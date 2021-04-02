@@ -13,14 +13,14 @@ import settings from '@gqlapp/config';
 const USERS_SUBSCRIPTION = 'users_subscription';
 const {
   auth: { secret, certificate, password },
-  app
+  app,
 } = settings;
 
-const createPasswordHash = password => {
+const createPasswordHash = (password) => {
   return bcrypt.hash(password, 12) || false;
 };
 
-export default pubsub => ({
+export default (pubsub) => ({
   Query: {
     users: withAuth(['user:view:all'], (obj, { orderBy, filter }, { User }) => {
       return User.getUsers(orderBy, filter);
@@ -41,15 +41,15 @@ export default pubsub => ({
       args,
       {
         User,
-        req: { identity }
-      }
+        req: { identity },
+      },
     ) {
       if (identity) {
         return User.getUser(identity.id);
       } else {
         return null;
       }
-    }
+    },
   },
   User: {
     profile(obj) {
@@ -57,7 +57,7 @@ export default pubsub => ({
     },
     auth(obj) {
       return obj;
-    }
+    },
   },
   UserProfile: {
     firstName(obj) {
@@ -72,7 +72,7 @@ export default pubsub => ({
       } else {
         return null;
       }
-    }
+    },
   },
   Mutation: {
     addUser: withAuth(
@@ -93,7 +93,9 @@ export default pubsub => ({
         }
 
         if (input.password.length < password.minLength) {
-          errors.password = t('user:passwordLength', { length: password.minLength });
+          errors.password = t('user:passwordLength', {
+            length: password.minLength,
+          });
         }
 
         if (!isEmpty(errors)) throw new UserInputError('Failed to get events due to validation errors', { errors });
@@ -108,8 +110,15 @@ export default pubsub => ({
             : !password.requireEmailConfirmation;
 
           [createdUserId] = await User.register({ ...input, isActive }, passwordHash).transacting(trx);
-          await User.editUserProfile({ id: createdUserId, ...input }).transacting(trx);
-          if (certificate.enabled) await User.editAuthCertificate({ id: createdUserId, ...input }).transacting(trx);
+          await User.editUserProfile({
+            id: createdUserId,
+            ...input,
+          }).transacting(trx);
+          if (certificate.enabled)
+            await User.editAuthCertificate({
+              id: createdUserId,
+              ...input,
+            }).transacting(trx);
           trx.commit();
         } catch (e) {
           trx.rollback();
@@ -131,7 +140,7 @@ export default pubsub => ({
                 <p>Welcome to ${app.name}. Please click the following link to confirm your email:</p>
                 <p><a href="${url}">${url}</a></p>
                 <p>Below are your login information</p>
-                <p>Your email is: ${user.email}</p>`
+                <p>Your email is: ${user.email}</p>`,
               });
               log.info(`Sent registration confirmation email to: ${user.email}`);
             });
@@ -140,14 +149,14 @@ export default pubsub => ({
           pubsub.publish(USERS_SUBSCRIPTION, {
             usersUpdated: {
               mutation: 'CREATED',
-              node: user
-            }
+              node: user,
+            },
           });
           return { user };
         } catch (e) {
           return e;
         }
-      }
+      },
     ),
     editUser: withAuth(
       (obj, args, { req: { identity } }) => {
@@ -170,7 +179,9 @@ export default pubsub => ({
         }
 
         if (input.password && input.password.length < password.minLength) {
-          errors.password = t('user:passwordLength', { length: password.minLength });
+          errors.password = t('user:passwordLength', {
+            length: password.minLength,
+          });
         }
 
         if (!isEmpty(errors)) throw new UserInputError('Failed to get events due to validation errors', { errors });
@@ -194,7 +205,7 @@ export default pubsub => ({
               subject: 'Your Password Has Been Updated',
               html: `<p>Your account password has been updated.</p>
                      <p>To view or edit your account settings, please visit the “Profile” page at</p>
-                     <p><a href="${url}">${url}</a></p>`
+                     <p><a href="${url}">${url}</a></p>`,
             });
             log.info(`Sent password has been updated to: ${input.email}`);
           }
@@ -212,15 +223,15 @@ export default pubsub => ({
           pubsub.publish(USERS_SUBSCRIPTION, {
             usersUpdated: {
               mutation: 'UPDATED',
-              node: user
-            }
+              node: user,
+            },
           });
 
           return { user };
         } catch (e) {
           throw e;
         }
-      }
+      },
     ),
     deleteUser: withAuth(
       (obj, args, { req: { identity } }) => {
@@ -245,15 +256,15 @@ export default pubsub => ({
           pubsub.publish(USERS_SUBSCRIPTION, {
             usersUpdated: {
               mutation: 'DELETED',
-              node: user
-            }
+              node: user,
+            },
           });
           return { user };
         } else {
           throw new Error(t('user:userCouldNotDeleted'));
         }
-      }
-    )
+      },
+    ),
   },
   Subscription: {
     usersUpdated: {
@@ -262,7 +273,7 @@ export default pubsub => ({
         (payload, variables) => {
           const { mutation, node } = payload.usersUpdated;
           const {
-            filter: { isActive, role, searchText }
+            filter: { isActive, role, searchText },
           } = variables;
 
           const checkByFilter =
@@ -280,8 +291,8 @@ export default pubsub => ({
             case 'UPDATED':
               return !checkByFilter;
           }
-        }
-      )
-    }
-  }
+        },
+      ),
+    },
+  },
 });

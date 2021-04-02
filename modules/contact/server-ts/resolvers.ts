@@ -18,7 +18,9 @@ export default () => ({
     async contact(obj: any, { input }: ContactInput, { mailer, req: { t } }: any) {
       const errors = validate(input, contactFormSchema);
       if (!isEmpty(errors)) {
-        throw new UserInputError(t('contact:validateError'), { errors });
+        throw new UserInputError(t('contact:validateError'), {
+          errors
+        });
       }
 
       try {

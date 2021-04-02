@@ -5,7 +5,7 @@ export const reconcileBatchOneToOne = (sources, results, matchField) => {
   let ret = [];
 
   for (let src of sources) {
-    let r = results.find(elem => elem[matchField] === src[matchField]);
+    let r = results.find((elem) => elem[matchField] === src[matchField]);
 
     if (r) {
       ret.push(Object.assign({}, r));
@@ -22,14 +22,14 @@ export const reconcileBatchOneToMany = (sources, results, matchField) => {
   for (let src of sources) {
     // search cache
     // find the match
-    let match = _.find(results, elem => elem.length > 0 && elem[0][matchField] === src[matchField]);
+    let match = _.find(results, (elem) => elem.length > 0 && elem[0][matchField] === src[matchField]);
 
     let r = match;
 
     // Push into ret
     if (r) {
       // ret.push(r)
-      ret.push(r.map(elem => Object.assign({}, elem)));
+      ret.push(r.map((elem) => Object.assign({}, elem)));
     } else {
       ret.push([]);
     }
@@ -45,7 +45,7 @@ export const reconcileBatchManyToMany = (
   sourcesField,
   resultsField,
   matchFilter,
-  resultFilter
+  resultFilter,
 ) => {
   // because we have multiple copies of the same source, its how graphql-resolve-batch works
   let ret = [];
@@ -53,10 +53,10 @@ export const reconcileBatchManyToMany = (
     // find the sources match
     const match = _.find(
       matches,
-      elem =>
+      (elem) =>
         elem.length > 0 &&
         elem[0][sourcesField] === src[sourcesField] &&
-        (matchFilter ? elem[0][matchFilter] === src[matchFilter] : true)
+        (matchFilter ? elem[0][matchFilter] === src[matchFilter] : true),
     );
 
     // Make the matched entries unique
@@ -70,12 +70,12 @@ export const reconcileBatchManyToMany = (
 
     // Filter by source fields (query path driven)
     if (resultFilter) {
-      r = r.filter(elem => elem[resultFilter] === src[resultFilter]);
+      r = r.filter((elem) => elem[resultFilter] === src[resultFilter]);
     }
 
     // Push into ret
     if (r) {
-      ret.push(r.map(elem => Object.assign({}, elem)));
+      ret.push(r.map((elem) => Object.assign({}, elem)));
     } else {
       ret.push([]);
     }
@@ -87,5 +87,5 @@ export const reconcileBatchManyToMany = (
 export default {
   reconcileBatchOneToOne,
   reconcileBatchOneToMany,
-  reconcileBatchManyToMany
+  reconcileBatchManyToMany,
 };

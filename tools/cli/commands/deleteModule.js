@@ -9,7 +9,7 @@ const {
   computePackagePath,
   computeModulePackageName,
   removeSymlink,
-  runPrettier
+  runPrettier,
 } = require('../helpers/util');
 
 /**
@@ -23,7 +23,14 @@ const {
 function deleteModule({ logger, packageName, moduleName, old }) {
   const modulePackageName = getModulePackageName(packageName, old);
   const modulePath = computeModulePath(modulePackageName, old, moduleName);
-  const params = { logger, moduleName, modulePath, packageName, modulePackageName, old };
+  const params = {
+    logger,
+    moduleName,
+    modulePath,
+    packageName,
+    modulePackageName,
+    old,
+  };
 
   if (fs.existsSync(modulePath)) {
     deleteTemplates(params);
@@ -75,7 +82,7 @@ function removeFromModules({ logger, moduleName, packageName, modulePackageName,
   // Extract application modules
   const appModuleRegExp = /Module\(([^()]+)\)/g;
   const [, appModules] = appModuleRegExp.exec(indexContent) || ['', ''];
-  const appModulesWithoutDeleted = appModules.split(',').filter(appModule => appModule.trim() !== moduleName);
+  const appModulesWithoutDeleted = appModules.split(',').filter((appModule) => appModule.trim() !== moduleName);
 
   const contentWithoutDeletedModule = indexContent
     .toString()
@@ -84,7 +91,7 @@ function removeFromModules({ logger, moduleName, packageName, modulePackageName,
     // Remove module import
     .replace(
       RegExp(`import ${moduleName} from '${computeModulePackageName(moduleName, modulePackageName, old)}';\n`, 'g'),
-      ''
+      '',
     );
 
   fs.writeFileSync(modulesEntry, contentWithoutDeletedModule);
@@ -106,15 +113,15 @@ function removeDependency({ moduleName, packageName, modulePackageName, old }) {
   // Remove package
   const dependenciesWithoutDeleted = dependencies
     .split(',')
-    .filter(pkg => !pkg.includes(computeModulePackageName(moduleName, modulePackageName, old)));
+    .filter((pkg) => !pkg.includes(computeModulePackageName(moduleName, modulePackageName, old)));
 
   // Remove module from package list
   shell
     .ShellString(
       packageContent.replace(
         RegExp(dependenciesRegExp, 'g'),
-        `"dependencies": {${dependenciesWithoutDeleted}},\n  "devDependencies"`
-      )
+        `"dependencies": {${dependenciesWithoutDeleted}},\n  "devDependencies"`,
+      ),
     )
     .to(packagePath);
 

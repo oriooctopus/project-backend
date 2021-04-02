@@ -40,7 +40,9 @@ class AddSubscription extends React.Component<AddSubscriptionProps, { [key: stri
       // create credit card token
       preparedCreditCard = await createCreditCardToken(creditCardInput, stripe);
 
-      await addSubscription({ variables: { input: preparedCreditCard } });
+      await addSubscription({
+        variables: { input: preparedCreditCard }
+      });
 
       this.setState({
         submitting: false
@@ -70,7 +72,9 @@ class AddSubscription extends React.Component<AddSubscriptionProps, { [key: stri
       <Mutation
         mutation={ADD_SUBSCRIPTION}
         update={(cache, { data: { addStripeSubscription } }) => {
-          const data: any = cache.readQuery({ query: SUBSCRIPTION_QUERY });
+          const data: any = cache.readQuery({
+            query: SUBSCRIPTION_QUERY
+          });
           data.stripeSubscription = addStripeSubscription;
           cache.writeQuery({ query: SUBSCRIPTION_QUERY, data });
         }}

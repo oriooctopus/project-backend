@@ -6,7 +6,7 @@ require('@babel/register')({
   root,
   cwd: root,
   configFile: root + '/packages/server/babel.config.js',
-  extensions: ['.js', '.jsx', '.ts', '.tsx']
+  extensions: ['.js', '.jsx', '.ts', '.tsx'],
 });
 require('dotenv/config');
 

@@ -12,7 +12,12 @@ interface $Module$ViewProps {
 const renderMetaData = (t: TranslateFunction) => (
   <Helmet
     title={`${settings.app.name} - ${t('title')}`}
-    meta={[{ name: 'description', content: `${settings.app.name} - ${t('meta')}` }]}
+    meta={[
+      {
+        name: 'description',
+        content: `${settings.app.name} - ${t('meta')}`,
+      },
+    ]}
   />
 );
 

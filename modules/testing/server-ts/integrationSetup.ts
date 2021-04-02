@@ -38,7 +38,9 @@ export const getApollo = () => {
   if (!apollo) {
     global.WebSocket = WebSocket;
     // TODO: remove any type after converting the createApolloClient.js file into Typescript
-    apollo = createApolloClient({ apiUrl: `http://localhost:${process.env.PORT}/graphql` } as any);
+    apollo = createApolloClient({
+      apiUrl: `http://localhost:${process.env.PORT}/graphql`
+    } as any);
   }
 
   return apollo;

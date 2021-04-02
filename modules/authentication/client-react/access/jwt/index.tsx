@@ -94,7 +94,9 @@ const JWTLink = (getApolloClient: () => ApolloClient<any>) =>
                   try {
                     const { data } = await apolloClient.mutate({
                       mutation: REFRESH_TOKENS_MUTATION,
-                      variables: { refreshToken: await getItem('refreshToken') }
+                      variables: {
+                        refreshToken: await getItem('refreshToken')
+                      }
                     });
 
                     if (data && data.refreshTokens) {

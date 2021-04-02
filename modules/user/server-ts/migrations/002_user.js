@@ -1,6 +1,6 @@
 exports.up = function(knex, Promise) {
   return Promise.all([
-    knex.schema.createTable('user', table => {
+    knex.schema.createTable('user', (table) => {
       table.increments();
       table.string('username').unique();
       table.string('email').unique();
@@ -9,7 +9,7 @@ exports.up = function(knex, Promise) {
       table.boolean('is_active').defaultTo(false);
       table.timestamps(false, true);
     }),
-    knex.schema.createTable('user_profile', table => {
+    knex.schema.createTable('user_profile', (table) => {
       table.increments();
       table.string('first_name');
       table.string('last_name');
@@ -21,7 +21,7 @@ exports.up = function(knex, Promise) {
         .onDelete('CASCADE');
       table.timestamps(false, true);
     }),
-    knex.schema.createTable('auth_certificate', table => {
+    knex.schema.createTable('auth_certificate', (table) => {
       table.increments();
       table.string('serial').unique();
       table
@@ -32,7 +32,7 @@ exports.up = function(knex, Promise) {
         .onDelete('CASCADE');
       table.timestamps(false, true);
     }),
-    knex.schema.createTable('auth_facebook', table => {
+    knex.schema.createTable('auth_facebook', (table) => {
       table.increments();
       table.string('fb_id').unique();
       table.string('display_name');
@@ -44,7 +44,7 @@ exports.up = function(knex, Promise) {
         .onDelete('CASCADE');
       table.timestamps(false, true);
     }),
-    knex.schema.createTable('auth_google', table => {
+    knex.schema.createTable('auth_google', (table) => {
       table.increments();
       table.string('google_id').unique();
       table.string('display_name');
@@ -56,7 +56,7 @@ exports.up = function(knex, Promise) {
         .onDelete('CASCADE');
       table.timestamps(false, true);
     }),
-    knex.schema.createTable('auth_github', table => {
+    knex.schema.createTable('auth_github', (table) => {
       table.increments();
       table.string('gh_id').unique();
       table.string('display_name');
@@ -68,7 +68,7 @@ exports.up = function(knex, Promise) {
         .onDelete('CASCADE');
       table.timestamps(false, true);
     }),
-    knex.schema.createTable('auth_linkedin', table => {
+    knex.schema.createTable('auth_linkedin', (table) => {
       table.increments();
       table.string('ln_id').unique();
       table.string('display_name');
@@ -79,7 +79,7 @@ exports.up = function(knex, Promise) {
         .inTable('user')
         .onDelete('CASCADE');
       table.timestamps(false, true);
-    })
+    }),
   ]);
 };
 
@@ -91,6 +91,6 @@ exports.down = function(knex, Promise) {
     knex.schema.dropTable('auth_github'),
     knex.schema.dropTable('auth_linkedin'),
     knex.schema.dropTable('user_profile'),
-    knex.schema.dropTable('user')
+    knex.schema.dropTable('user'),
   ]);
 };

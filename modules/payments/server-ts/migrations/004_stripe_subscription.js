@@ -1,6 +1,6 @@
 exports.up = function(knex, Promise) {
   return Promise.all([
-    knex.schema.createTable('stripe_subscription', table => {
+    knex.schema.createTable('stripe_subscription', (table) => {
       table.increments();
       table.string('stripe_customer_id').unique();
       table.string('stripe_source_id').unique();
@@ -17,7 +17,7 @@ exports.up = function(knex, Promise) {
         .inTable('user')
         .onDelete('CASCADE');
       table.timestamps(false, true);
-    })
+    }),
   ]);
 };
 

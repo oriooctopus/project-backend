@@ -5,5 +5,8 @@ import schema from './schema.graphql';
 import resolvers from './resolvers';
 
 export default settings.auth.password.enabled
-  ? new AuthModule({ schema: [schema], createResolversFunc: [resolvers] })
+  ? new AuthModule({
+      schema: [schema],
+      createResolversFunc: [resolvers],
+    })
   : undefined;

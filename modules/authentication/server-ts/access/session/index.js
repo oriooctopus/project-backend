@@ -17,7 +17,7 @@ const getCurrentIdentity = async ({ req, getIdentity }) => {
   }
 };
 
-const attachSession = req => {
+const attachSession = (req) => {
   if (req) {
     req.session = readSession(req);
     if (!req.session) {
@@ -49,7 +49,7 @@ export default new AccessModule(
         grant: [grant],
         schema: [schema],
         createResolversFunc: [resolvers],
-        createContextFunc: [createContextFunc]
+        createContextFunc: [createContextFunc],
       }
-    : {}
+    : {},
 );

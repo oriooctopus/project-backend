@@ -1,4 +1,4 @@
-module.exports = api => {
+module.exports = (api) => {
   api.cache(true);
   return {
     compact: false,
@@ -11,12 +11,12 @@ module.exports = api => {
       '@babel/plugin-transform-runtime',
       ['@babel/plugin-proposal-decorators', { legacy: true }],
       ['@babel/plugin-proposal-class-properties', { loose: true }],
-      '@babel/plugin-proposal-object-rest-spread'
+      '@babel/plugin-proposal-object-rest-spread',
     ],
     env: {
       production: {
-        compact: true
-      }
-    }
+        compact: true,
+      },
+    },
   };
 };

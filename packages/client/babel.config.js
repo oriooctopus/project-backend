@@ -1,4 +1,4 @@
-module.exports = api => {
+module.exports = (api) => {
   const isTest = api.env('test');
   api.cache(true);
   if (isTest) {
@@ -14,8 +14,8 @@ module.exports = api => {
         ['@babel/plugin-proposal-decorators', { legacy: true }],
         ['@babel/plugin-proposal-class-properties', { loose: true }],
         '@babel/plugin-proposal-object-rest-spread',
-        ['styled-components', { ssr: true }]
-      ]
+        ['styled-components', { ssr: true }],
+      ],
     };
   } else {
     return {
@@ -31,13 +31,13 @@ module.exports = api => {
         ['@babel/plugin-proposal-decorators', { legacy: true }],
         ['@babel/plugin-proposal-class-properties', { loose: true }],
         '@babel/plugin-proposal-object-rest-spread',
-        ['styled-components', { ssr: true }]
+        ['styled-components', { ssr: true }],
       ],
       env: {
         production: {
-          compact: true
-        }
-      }
+          compact: true,
+        },
+      },
     };
   }
 };

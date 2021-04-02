@@ -19,7 +19,12 @@ const ContactView = (props: ContactViewProps) => {
     <PageLayout>
       <Helmet
         title={`${settings.app.name} - ${t('title')}`}
-        meta={[{ name: 'description', content: `${settings.app.name} - ${t('meta')}` }]}
+        meta={[
+          {
+            name: 'description',
+            content: `${settings.app.name} - ${t('meta')}`
+          }
+        ]}
       />
       <LayoutCenter>
         <h1 className="text-center">{t('form.title')}</h1>

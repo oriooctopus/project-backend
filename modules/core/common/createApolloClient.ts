@@ -22,7 +22,10 @@ interface CreateApolloClientOptions {
   createLink?: Array<(getApolloClient: () => ApolloClient<any>) => ApolloLink>;
   createNetLink?: (apiUrl: string, getApolloClient: () => ApolloClient<any>) => ApolloLink;
   connectionParams?: ConnectionParamsOptions[];
-  clientResolvers?: { defaults: { [key: string]: any }; resolvers: IResolvers };
+  clientResolvers?: {
+    defaults: { [key: string]: any };
+    resolvers: IResolvers;
+  };
 }
 
 const createApolloClient = ({

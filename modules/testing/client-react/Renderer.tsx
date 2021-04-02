@@ -27,7 +27,10 @@ if (!process.env.JEST_WORKER_ID) {
   });
 }
 
-const ref: { clientModules: ClientModule; typeDefs: DocumentNode[] } = { clientModules: null, typeDefs: null };
+const ref: {
+  clientModules: ClientModule;
+  typeDefs: DocumentNode[];
+} = { clientModules: null, typeDefs: null };
 
 export const initRenderer = (graphqlTypeDefs: DocumentNode[], clientModules: ClientModule) => {
   ref.clientModules = clientModules;

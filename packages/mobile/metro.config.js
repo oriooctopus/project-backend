@@ -14,10 +14,10 @@ const config = {
       mangle: {
         module: true,
         keep_classnames: true,
-        keep_fnames: true
-      }
-    }
-  }
+        keep_fnames: true,
+      },
+    },
+  },
 };
 
 module.exports = config;

@@ -18,7 +18,7 @@ module.exports = {
       }
     }
     return {
-      code: `module.exports = ${JSON.stringify(result)};`
+      code: `module.exports = ${JSON.stringify(result)};`,
     };
-  }
+  },
 };

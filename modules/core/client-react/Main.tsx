@@ -17,7 +17,11 @@ if (!__TEST__) {
   log.info(`Connecting to GraphQL backend at: ${apiUrl}`);
 }
 
-const ref: { modules: ClientModule; client: ApolloClient<any>; store: Store } = {
+const ref: {
+  modules: ClientModule;
+  client: ApolloClient<any>;
+  store: Store;
+} = {
   modules: null,
   client: null,
   store: null
@@ -80,7 +84,12 @@ export class Main extends React.Component<any, MainState> {
   constructor(props: any) {
     super(props);
     const serverError = window.__SERVER_ERROR__;
-    serverError ? (this.state = { error: new ServerError(serverError), ready: true }) : (this.state = {});
+    serverError
+      ? (this.state = {
+          error: new ServerError(serverError),
+          ready: true
+        })
+      : (this.state = {});
   }
 
   public componentDidCatch(error: ServerError, info: any) {

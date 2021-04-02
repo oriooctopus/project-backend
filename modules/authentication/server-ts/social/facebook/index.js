@@ -20,8 +20,11 @@ const middleware = (app, { social }) => {
 
   app.get(
     '/auth/facebook/callback',
-    passport.authenticate('facebook', { session: false, failureRedirect: '/login' }),
-    social.facebook.onAuthenticationSuccess
+    passport.authenticate('facebook', {
+      session: false,
+      failureRedirect: '/login',
+    }),
+    social.facebook.onAuthenticationSuccess,
   );
 };
 
@@ -30,13 +33,13 @@ const onAppCreate = async ({ appContext }) => {
     passport.use(
       new FacebookStrategy(
         { clientID, clientSecret, scope, callbackURL, profileFields },
-        appContext.social.facebook.verifyCallback
-      )
+        appContext.social.facebook.verifyCallback,
+      ),
     );
   }
 };
 
 export default new AuthModule({
   middleware: [middleware],
-  onAppCreate: [onAppCreate]
+  onAppCreate: [onAppCreate],
 });

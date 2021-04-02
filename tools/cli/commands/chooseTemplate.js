@@ -11,11 +11,11 @@ const chooseTemplate = async () => {
   // getting a list of existing technologies
   const existingStackList = fs
     .readdirSync(`${BASE_PATH}/packages`)
-    .filter(stack => Object.keys(STACK_MAP).includes(stack));
+    .filter((stack) => Object.keys(STACK_MAP).includes(stack));
 
   // creating a list of options with existing technologies for 'inquirer'
-  const choices = existingStackList.map(stack => ({
-    name: STACK_MAP[stack].title
+  const choices = existingStackList.map((stack) => ({
+    name: STACK_MAP[stack].title,
   }));
 
   // creating options for 'inquirer'
@@ -25,8 +25,8 @@ const chooseTemplate = async () => {
       message: 'Choose your technology stack or stacks',
       name: 'stackList',
       choices,
-      validate: answer => (answer.length < 1 ? 'You must choose at least one stack.' : true)
-    }
+      validate: (answer) => (answer.length < 1 ? 'You must choose at least one stack.' : true),
+    },
   ];
 
   // getting a list of selected technologies using 'inquirer'
@@ -35,7 +35,7 @@ const chooseTemplate = async () => {
   // collects list of unused technologies
   const stackDirList = Object.keys(STACK_MAP).reduce(
     (acc, curr) => (stackList.includes(STACK_MAP[curr].title) ? acc : [...acc, ...STACK_MAP[curr].subdirs]),
-    []
+    [],
   );
 
   deleteStackDir(stackDirList);

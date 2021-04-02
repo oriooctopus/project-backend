@@ -57,13 +57,19 @@ describe('User API works', () => {
     });
 
     it('Can query own user profile', async () => {
-      const result = await apollo.query({ query: USER_QUERY, variables: { id: 2 } });
+      const result = await apollo.query({
+        query: USER_QUERY,
+        variables: { id: 2 }
+      });
       expect(result.data.user.user.username).to.equal('user');
     });
 
     it('Cannot query other users profile', async () => {
       try {
-        await apollo.query({ query: USER_QUERY, variables: { id: 1 } });
+        await apollo.query({
+          query: USER_QUERY,
+          variables: { id: 1 }
+        });
       } catch (e) {
         expect(e.graphQLErrors).to.be.an('Array');
       }
@@ -79,12 +85,18 @@ describe('User API works', () => {
     });
 
     it('Can query own user profile', async () => {
-      const result = await apollo.query({ query: USER_QUERY, variables: { id: 1 } });
+      const result = await apollo.query({
+        query: USER_QUERY,
+        variables: { id: 1 }
+      });
       expect(result.data.user.user.username).to.equal('admin');
     });
 
     it('Can query other users profile', async () => {
-      const result = await apollo.query({ query: USER_QUERY, variables: { id: 2 } });
+      const result = await apollo.query({
+        query: USER_QUERY,
+        variables: { id: 2 }
+      });
       expect(result.data.user.user.username).to.equal('user');
     });
   });

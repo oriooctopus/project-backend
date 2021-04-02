@@ -7,13 +7,13 @@ import { onAuthenticationSuccess, registerUser } from '../shared';
 import User from '../../sql';
 import resolvers from './resolvers';
 
-const createGithubAuth = async user => User.createGithubAuth(user);
+const createGithubAuth = async (user) => User.createGithubAuth(user);
 
 async function verifyCallback(accessToken, refreshToken, profile, cb) {
   const {
     id,
     displayName,
-    emails: [{ value }]
+    emails: [{ value }],
   } = profile;
 
   try {
@@ -21,7 +21,11 @@ async function verifyCallback(accessToken, refreshToken, profile, cb) {
 
     if (!user) {
       const [createdUserId] = await registerUser(profile);
-      await createGithubAuth({ id, displayName, userId: createdUserId });
+      await createGithubAuth({
+        id,
+        displayName,
+        userId: createdUserId,
+      });
       user = await User.getUser(createdUserId);
     } else if (!user.ghId) {
       await createGithubAuth({ id, displayName, userId: user.id });
@@ -36,8 +40,8 @@ async function verifyCallback(accessToken, refreshToken, profile, cb) {
 export const githubData = {
   github: {
     onAuthenticationSuccess,
-    verifyCallback
-  }
+    verifyCallback,
+  },
 };
 
 export default settings.auth.social.github.enabled && !__TEST__

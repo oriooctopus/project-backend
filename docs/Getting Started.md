@@ -7,9 +7,9 @@ Follow the links below to the installation sections you're interested in:
 1. [Installing and Running Apollo Universal Starter Kit](#installing-and-running-apollo-universal-starter-kit)
 2. [Running the Mobile App in Expo Client](#running-the-mobile-app-with-expo)
 3. [Running the Starter Kit in a Mobile Simulator](#running-the-starter-kit-in-a-mobile-simulator)
-    * [Android Studio](#android-studio)
-    * [Genymotion](#genymotion)
-    * [Xcode](#xcode)
+   - [Android Studio](#android-studio)
+   - [Genymotion](#genymotion)
+   - [Xcode](#xcode)
 
 ## Installing and Running Apollo Universal Starter Kit
 
@@ -22,9 +22,7 @@ git clone -b stable https://github.com/sysgears/apollo-universal-starter-kit.git
 cd apollo-universal-starter-kit
 ```
 
-The stable branch contains only the approved and tested functionalities that were introduced in Apollo Universal Starter
-Kit. You may clone the master branch instead of the stable branch, but the application from master may not work
-consistently.
+The stable branch contains only the approved and tested functionalities that were introduced in Apollo Universal Starter Kit. You may clone the master branch instead of the stable branch, but the application from master may not work consistently.
 
 3. Install the dependencies:
 
@@ -32,14 +30,9 @@ consistently.
 yarn
 ```
 
-**NOTE**: Apollo Starter Kit uses Yarn's special feature called _workspaces_ along with [Lerna] to handle the package
-architecture. Using Yarn workspaces and Lerna allows us to build libraries and applications in a single repository.
-This is why, though the starter kit comes with four `package.json` files with different dependencies, you can install
-all the dependencies with `yarn` from the root directory.
+**NOTE**: Apollo Starter Kit uses Yarn's special feature called _workspaces_ along with [Lerna] to handle the package architecture. Using Yarn workspaces and Lerna allows us to build libraries and applications in a single repository. This is why, though the starter kit comes with four `package.json` files with different dependencies, you can install all the dependencies with `yarn` from the root directory.
 
-Managing packages architecture this way isn't possible with NPM, which is why we recommend Yarn. Otherwise, you'll have
-to install the dependencies separately for each package &ndash; client, server, and mobile &ndash; to be able to run the
-project.
+Managing packages architecture this way isn't possible with NPM, which is why we recommend Yarn. Otherwise, you'll have to install the dependencies separately for each package &ndash; client, server, and mobile &ndash; to be able to run the project.
 
 4. Seed sample data to the database. The command below will create new tables with sample data in SQLite:
 
@@ -53,18 +46,13 @@ yarn seed
 yarn watch
 ```
 
-After running `yarn watch`, your default browser will automatically open the web application at [http://localhost:3000/].
-You can start changing the application code, and the changes will be applied immediately thanks to the live reload. You
-can also open the app in multiple tabs and test it: Increase the counter or add a new post or comment, and you'll see
-that all opened tabs are updated simultaneously.
+After running `yarn watch`, your default browser will automatically open the web application at [http://localhost:3000/]. You can start changing the application code, and the changes will be applied immediately thanks to the live reload. You can also open the app in multiple tabs and test it: Increase the counter or add a new post or comment, and you'll see that all opened tabs are updated simultaneously.
 
 **NOTE**: Apollo Universal Starter Kit provides React, Angular and Vue frontends.
 
-To run Angular frontend execute:
-`yarn watch:angular`
+To run Angular frontend execute: `yarn watch:angular`
 
-To run Vue frontend execute:
-`yarn watch:vue`
+To run Vue frontend execute: `yarn watch:vue`
 
 ## Running the Mobile App with Expo
 
@@ -97,8 +85,7 @@ If scanning the codes with Expo Client doesn't launch the mobile app, you can ma
 1. Tap **Explore** in Expo Client.
 2. Enter the link similar to this: `exp://000.000.000:19000`. Use your real IP address instead of 000.000.000.
 
-You can look for the link for Expo Client in the console: Apollo Starter Kit kindly provides the links you can use to
-open the app on your device.
+You can look for the link for Expo Client in the console: Apollo Starter Kit kindly provides the links you can use to open the app on your device.
 
 ## Running the Starter Kit in a Mobile Simulator
 
@@ -109,8 +96,7 @@ open the app on your device.
 3. Choose a device from the list in **Select Hardware**. Click **Next**.
 4. Choose a system image from the list. You can open the **x86 Images** tab and install the suitable image.
 
-**NOTE**: we recommend installing the Lollipop x86_64 API image. With this low-level API, the emulator will work more
-rapidly than with other APIs.
+**NOTE**: we recommend installing the Lollipop x86_64 API image. With this low-level API, the emulator will work more rapidly than with other APIs.
 
 5. Open the `~/.bashrc` file in your favorite text editor and add the following line:
 
@@ -118,26 +104,19 @@ rapidly than with other APIs.
 export PATH="/home/username/Android/Sdk/platform-tools:$PATH"
 ```
 
-This line will add the `~/Android/Sdk/platform-tools/` directory into `PATH` and allow Expo (inside the starter kit) to
-use the `adb` instance from the Android SDK. Put simply, the Expo client will be automatically installed and run in the
-simulator when you run the Apollo Universal Starter Kit project for mobile.
+This line will add the `~/Android/Sdk/platform-tools/` directory into `PATH` and allow Expo (inside the starter kit) to use the `adb` instance from the Android SDK. Put simply, the Expo client will be automatically installed and run in the simulator when you run the Apollo Universal Starter Kit project for mobile.
 
-**NOTE**: use the username on you development computer instead of the `/username/` part in `PATH`, for example,
-`"/home/johndoe/Android/Sdk/platform-tools:$PATH"`.
+**NOTE**: use the username on you development computer instead of the `/username/` part in `PATH`, for example, `"/home/johndoe/Android/Sdk/platform-tools:$PATH"`.
 
-6. Launch your virtual phone from AVD Manager: open the **Tools** menu and click **AVD Manager**. In the list of
-available virtual devices, run the one you created.
+6. Launch your virtual phone from AVD Manager: open the **Tools** menu and click **AVD Manager**. In the list of available virtual devices, run the one you created.
 
 7. Launch the starter kit with `yarn watch:android` or `yarn watch:ios`.
 
-**NOTE**: If you're launching the starter kit for the first time, you may need to first run `yarn seed` to generate
-sample data.
+**NOTE**: If you're launching the starter kit for the first time, you may need to first run `yarn seed` to generate sample data.
 
-8. The Expo Client app will automatically start. You don't need to additionally install Expo Client on the virtual
-smartphone.
+8. The Expo Client app will automatically start. You don't need to additionally install Expo Client on the virtual smartphone.
 
-**NOTE**: It may take up to a minute or two to build and run the mobile app on Android for the first time. The next runs
-will be more rapid.
+**NOTE**: It may take up to a minute or two to build and run the mobile app on Android for the first time. The next runs will be more rapid.
 
 ### Genymotion
 
@@ -151,8 +130,7 @@ will be more rapid.
 
 5. To bring up the developer menu, press ⌘ + M on your keyboard.
 
-If you are using Genymotion, on the **Settings** menu select **ADB**. Then select **Use custom Android SDK tools**, and
-add the path to your Android SDK directory.
+If you are using Genymotion, on the **Settings** menu select **ADB**. Then select **Use custom Android SDK tools**, and add the path to your Android SDK directory.
 
 ### Xcode
 
@@ -174,13 +152,12 @@ xcode-select --install
 yarn watch
 ```
 
-Simulator will start automatically and open the app in Expo. To bring up the developer menu, press ⌘ + D on your
-keyboard.
+Simulator will start automatically and open the app in Expo. To bring up the developer menu, press ⌘ + D on your keyboard.
 
 **NOTE**: If the iOS simulator fails to start Expo Client or the starter kit mobile app, try resetting the simulator:
 
-* On the **Hardware** menu, click **Erase all content and settings**.
-* Restart the application.
+- On the **Hardware** menu, click **Erase all content and settings**.
+- Restart the application.
 
 [lerna]: https://lernajs.io/
 [http://localhost:3000/]: http://localhost:3000/

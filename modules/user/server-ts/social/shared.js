@@ -18,6 +18,6 @@ export const registerUser = async ({ id, username, displayName, emails: [{ value
     username: username || displayName,
     email: value,
     password: id,
-    isActive: true
+    isActive: true,
   });
 };

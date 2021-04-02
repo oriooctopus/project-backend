@@ -11,7 +11,10 @@ import { onAppDispose } from './api/subscriptions';
 
 let server: http.Server;
 
-const ref: { modules: ServerModule; resolve: (server: http.Server) => void } = {
+const ref: {
+  modules: ServerModule;
+  resolve: (server: http.Server) => void;
+} = {
   modules: null,
   resolve: null
 };

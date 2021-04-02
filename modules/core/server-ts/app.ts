@@ -29,7 +29,11 @@ export const createServerApp = (schema: GraphQLSchema, modules: ServerModule) =>
 
   if (!isApiExternal) {
     const graphqlServer = createApolloServer(schema, modules);
-    graphqlServer.applyMiddleware({ app, path: __API_URL__, cors: { credentials: true, origin: true } });
+    graphqlServer.applyMiddleware({
+      app,
+      path: __API_URL__,
+      cors: { credentials: true, origin: true }
+    });
   }
 
   app.get('/graphiql', (req, res, next) => graphiqlMiddleware(req, res, next));

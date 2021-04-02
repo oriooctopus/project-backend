@@ -1,6 +1,6 @@
 # Introduction
 
-This section will introduce you to the basic concepts required in order to understand this repository's structure and how to use it. It the long run it will help you both contribute to this repository and use it for your own projects. 
+This section will introduce you to the basic concepts required in order to understand this repository's structure and how to use it. It the long run it will help you both contribute to this repository and use it for your own projects.
 
 In this part we will cover only basic concepts but not implementation details we actually use in this repository. We will leave that for another section.
 
@@ -28,9 +28,10 @@ So fractal objects are nothing unheard of, they are regular objects which have c
 
 And that's it, simple as that. And although the idea is simple, we can leverage it in many ways to make our code more modular and extendable.
 
-Let us see how the fractal structure is used in the Apollo Universal Starter Kit repository to manage modules and features. Of course the description below will be just high level overview to get the general idea. Later on we will go into exact details. 
+Let us see how the fractal structure is used in the Apollo Universal Starter Kit repository to manage modules and features. Of course the description below will be just high level overview to get the general idea. Later on we will go into exact details.
 
 Since we are building an app, there are multiple aspects that we want to consider. For most of the cases we will need:
+
 - web server
 - a web app
 - a mobile app

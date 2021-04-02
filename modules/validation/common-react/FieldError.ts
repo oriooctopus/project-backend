@@ -18,7 +18,13 @@ export class FieldError {
 
   public setErrors(errors: Errors) {
     this.errors = Array.isArray(errors)
-      ? errors.reduce((formattedErrors, error) => ({ ...formattedErrors, [error.field]: error.message }), {})
+      ? errors.reduce(
+          (formattedErrors, error) => ({
+            ...formattedErrors,
+            [error.field]: error.message
+          }),
+          {}
+        )
       : { ...this.errors, ...errors };
   }
 

@@ -27,7 +27,9 @@ const Contact = (props: ContctProps): any => {
         const sendContact = async (values: ContactForm) => {
           const {
             data: { contact }
-          } = (await mutate({ variables: { input: values } })) as FetchResult;
+          } = (await mutate({
+            variables: { input: values }
+          })) as FetchResult;
           return contact;
         };
         return <ContactView {...props} onSubmit={onSubmit(sendContact)} />;

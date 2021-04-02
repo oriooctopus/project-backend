@@ -68,7 +68,9 @@ describe('Contact UI works', () => {
     await waitForElement(() => dom.getByText('Invalid email address'));
 
     act(() => {
-      fireEvent.change(emailInput, { target: { value: 'admin@example.com' } });
+      fireEvent.change(emailInput, {
+        target: { value: 'admin@example.com' }
+      });
     });
     await wait(() => {
       expect(dom.queryByText('Invalid email address')).toBeNull();
@@ -88,7 +90,9 @@ describe('Contact UI works', () => {
     });
     await waitForElement(() => dom.getByText('Must be 10 or more characters'));
 
-    fireEvent.change(contentInput, { target: { value: 'Some text for test' } });
+    fireEvent.change(contentInput, {
+      target: { value: 'Some text for test' }
+    });
     await wait(() => {
       expect(dom.queryByText('Must be 10 or more characters')).toBeNull();
       expect(dom.queryByText('Required')).toBeNull();
@@ -107,8 +111,12 @@ describe('Contact UI works', () => {
 
   it('Form is submitted with valid data', async () => {
     fireEvent.change(nameInput, { target: { value: 'admin' } });
-    fireEvent.change(emailInput, { target: { value: 'admin@example.com' } });
-    fireEvent.change(contentInput, { target: { value: 'Some text for test' } });
+    fireEvent.change(emailInput, {
+      target: { value: 'admin@example.com' }
+    });
+    fireEvent.change(contentInput, {
+      target: { value: 'Some text for test' }
+    });
     act(() => {
       fireEvent.click(submitButton);
     });

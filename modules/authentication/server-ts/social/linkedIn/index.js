@@ -20,20 +20,23 @@ const middleware = (app, { social }) => {
 
   app.get(
     '/auth/linkedin/callback',
-    passport.authenticate('linkedin', { session: false, failureRedirect: '/login' }),
-    social.linkedin.onAuthenticationSuccess
+    passport.authenticate('linkedin', {
+      session: false,
+      failureRedirect: '/login',
+    }),
+    social.linkedin.onAuthenticationSuccess,
   );
 };
 
 const onAppCreate = async ({ appContext }) => {
   if (enabled && !__TEST__) {
     passport.use(
-      new LinkedInStrategy({ clientID, clientSecret, callbackURL, scope }, appContext.social.linkedin.verifyCallback)
+      new LinkedInStrategy({ clientID, clientSecret, callbackURL, scope }, appContext.social.linkedin.verifyCallback),
     );
   }
 };
 
 export default new AuthModule({
   middleware: [middleware],
-  onAppCreate: [onAppCreate]
+  onAppCreate: [onAppCreate],
 });

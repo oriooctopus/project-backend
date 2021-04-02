@@ -60,7 +60,10 @@ describe('Server counter example UI works', () => {
     act(() => {
       subscription.next({
         data: {
-          counterUpdated: { amount: COUNTER_SUBSCRIPTION_VALUE, __typename: 'Counter' }
+          counterUpdated: {
+            amount: COUNTER_SUBSCRIPTION_VALUE,
+            __typename: 'Counter'
+          }
         }
       });
     });

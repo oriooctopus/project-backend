@@ -21,7 +21,7 @@ const getModulePackageName = (packageName, old) => {
  * @param old - The flag that describes if the command invoked for a new structure or not
  * @returns {string} - path to the templates
  */
-const getTemplatesPath = old => (old ? MODULE_TEMPLATES_OLD : MODULE_TEMPLATES);
+const getTemplatesPath = (old) => (old ? MODULE_TEMPLATES_OLD : MODULE_TEMPLATES);
 
 /**
  * Copies the templates to the destination directory.
@@ -47,14 +47,14 @@ function renameFiles(destinationPath, moduleName) {
   shell.cd(destinationPath);
 
   // rename files
-  shell.ls('-Rl', '.').forEach(entry => {
+  shell.ls('-Rl', '.').forEach((entry) => {
     if (entry.isFile()) {
       shell.mv(entry.name, entry.name.replace('Module', Module));
     }
   });
 
   // replace module names
-  shell.ls('-Rl', '.').forEach(entry => {
+  shell.ls('-Rl', '.').forEach((entry) => {
     if (entry.isFile()) {
       shell.sed('-i', /\$module\$/g, moduleName, entry.name);
       shell.sed('-i', /\$_module\$/g, decamelize(moduleName), entry.name);
@@ -87,7 +87,7 @@ const computeModulePath = (packageName, old, moduleName) => {
  * @param matcher - The regexp for finding the file
  * @returns {string} - Returns the found file name, otherwise `undefined`
  */
-const findFileInPath = (path, matcher) => fs.readdirSync(path).find(_ => _.match(matcher));
+const findFileInPath = (path, matcher) => fs.readdirSync(path).find((_) => _.match(matcher));
 
 /**
  * Gets the path of the modules entry point.
@@ -122,7 +122,11 @@ function computeRootModulesPath(moduleName) {
  * @returns {string} - Return the computed path
  */
 function computeModulePackageName(moduleName, packageName, old) {
-  return old ? `./${moduleName}` : `@gqlapp/${decamelize(moduleName, { separator: '-' })}-${packageName}`;
+  return old
+    ? `./${moduleName}`
+    : `@gqlapp/${decamelize(moduleName, {
+        separator: '-',
+      })}-${packageName}`;
 }
 
 /**
@@ -144,7 +148,9 @@ function computePackagePath(packageName) {
 function addSymlink(packageName, modulePackageName) {
   fs.symlinkSync(
     `${BASE_PATH}/modules/${packageName}/${modulePackageName}`,
-    `${BASE_PATH}/node_modules/@gqlapp/${decamelize(packageName, { separator: '-' })}-${modulePackageName}`
+    `${BASE_PATH}/node_modules/@gqlapp/${decamelize(packageName, {
+      separator: '-',
+    })}-${modulePackageName}`,
   );
 }
 
@@ -156,7 +162,9 @@ function addSymlink(packageName, modulePackageName) {
  */
 function removeSymlink(packageName, modulePackageName) {
   fs.unlinkSync(
-    `${BASE_PATH}/node_modules/@gqlapp/${decamelize(packageName, { separator: '-' })}-${modulePackageName}`
+    `${BASE_PATH}/node_modules/@gqlapp/${decamelize(packageName, {
+      separator: '-',
+    })}-${modulePackageName}`,
   );
 }
 
@@ -205,7 +213,7 @@ function getPathsSubdir(path) {
   const subdirPathList = [];
   const subdirs = fs.readdirSync(path);
 
-  subdirs.forEach(subdir => {
+  subdirs.forEach((subdir) => {
     if (!fs.statSync(`${path}/${subdir}`).isFile()) {
       return subdirPathList.push(`${path}/${subdir}`);
     }
@@ -222,9 +230,9 @@ function getPathsSubdir(path) {
 function deleteStackDir(stackDirList) {
   const route = moveToDirectory('modules');
   const subdirList = getPathsSubdir(route);
-  stackDirList.forEach(stack => {
+  stackDirList.forEach((stack) => {
     deleteDir(`${BASE_PATH}/packages/${stack}`);
-    subdirList.forEach(dir => {
+    subdirList.forEach((dir) => {
       deleteDir(`${dir}/${stack}`);
     });
   });
@@ -247,5 +255,5 @@ module.exports = {
   moveToDirectory,
   deleteDir,
   getPathsSubdir,
-  deleteStackDir
+  deleteStackDir,
 };

@@ -11,7 +11,7 @@ const {
   computePackagePath,
   computeModulePackageName,
   addSymlink,
-  runPrettier
+  runPrettier,
 } = require('../helpers/util');
 
 /**
@@ -24,7 +24,14 @@ const {
 function addModule({ logger, packageName, moduleName, old }) {
   const modulePackageName = getModulePackageName(packageName, old);
   const templatesPath = getTemplatesPath(old);
-  const params = { logger, packageName, moduleName, modulePackageName, templatesPath, old };
+  const params = {
+    logger,
+    packageName,
+    moduleName,
+    modulePackageName,
+    templatesPath,
+    old,
+  };
 
   copyTemplates(params);
   mergeWithModules(params);
@@ -108,8 +115,8 @@ function addDependency({ moduleName, modulePackageName, packageName, old }) {
     .ShellString(
       packageContent.replace(
         RegExp(dependenciesRegExp, 'g'),
-        `"dependencies": {${dependenciesSorted}},\n  "devDependencies"`
-      )
+        `"dependencies": {${dependenciesSorted}},\n  "devDependencies"`,
+      ),
     )
     .to(packagePath);
 

@@ -7,13 +7,13 @@ import { onAuthenticationSuccess, registerUser } from '../shared';
 import User from '../../sql';
 import resolvers from './resolvers';
 
-const createLinkedInAuth = async user => User.createLinkedInAuth(user);
+const createLinkedInAuth = async (user) => User.createLinkedInAuth(user);
 
 async function verifyCallback(accessToken, refreshToken, profile, cb) {
   const {
     id,
     displayName,
-    emails: [{ value }]
+    emails: [{ value }],
   } = profile;
 
   try {
@@ -21,7 +21,11 @@ async function verifyCallback(accessToken, refreshToken, profile, cb) {
 
     if (!user) {
       const [createdUserId] = await registerUser(profile);
-      await createLinkedInAuth({ id, displayName, userId: createdUserId });
+      await createLinkedInAuth({
+        id,
+        displayName,
+        userId: createdUserId,
+      });
       user = await User.getUser(createdUserId);
     } else if (!user.lnId) {
       await createLinkedInAuth({ id, displayName, userId: user.id });
@@ -36,8 +40,8 @@ async function verifyCallback(accessToken, refreshToken, profile, cb) {
 export const linkedinData = {
   linkedin: {
     onAuthenticationSuccess,
-    verifyCallback
-  }
+    verifyCallback,
+  },
 };
 
 export default settings.auth.social.linkedin.enabled && !__TEST__

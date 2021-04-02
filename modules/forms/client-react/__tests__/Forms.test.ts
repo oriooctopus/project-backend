@@ -58,7 +58,9 @@ describe('Class FormError works', () => {
     }
   );
 
-  const apolloErrorWithNetworkError = new ApolloError({ networkError: new Error('Test networkError') });
+  const apolloErrorWithNetworkError = new ApolloError({
+    networkError: new Error('Test networkError')
+  });
 
   const apolloErrorWithGraphQLError = new ApolloError({
     graphQLErrors: [passwordGraphQLError],

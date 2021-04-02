@@ -47,7 +47,10 @@ describe('Post and reviews example API works', () => {
   });
 
   it('Query single post with reviews works', async () => {
-    const result = await apollo.query({ query: POST_QUERY, variables: { id: 1 } });
+    const result = await apollo.query({
+      query: POST_QUERY,
+      variables: { id: 1 }
+    });
 
     expect(result.data).to.deep.equal({
       post: {

@@ -20,20 +20,23 @@ const middleware = (app, { social }) => {
 
   app.get(
     '/auth/github/callback',
-    passport.authenticate('github', { session: false, failureRedirect: '/login' }),
-    social.github.onAuthenticationSuccess
+    passport.authenticate('github', {
+      session: false,
+      failureRedirect: '/login',
+    }),
+    social.github.onAuthenticationSuccess,
   );
 };
 
 const onAppCreate = async ({ appContext }) => {
   if (enabled && !__TEST__) {
     passport.use(
-      new GitHubStrategy({ clientID, clientSecret, scope, callbackURL }, appContext.social.github.verifyCallback)
+      new GitHubStrategy({ clientID, clientSecret, scope, callbackURL }, appContext.social.github.verifyCallback),
     );
   }
 };
 
 export default new AuthModule({
   middleware: [middleware],
-  onAppCreate: [onAppCreate]
+  onAppCreate: [onAppCreate],
 });

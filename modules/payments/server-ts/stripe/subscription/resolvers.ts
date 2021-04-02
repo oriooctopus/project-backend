@@ -21,7 +21,9 @@ interface CreditCard {
 export default () => ({
   Query: {
     stripeSubscription: withAuth(['stripe:view:self'], (obj: any, args: any, { stripeSubscription }: any) => {
-      return { active: !!(stripeSubscription && stripeSubscription.active) };
+      return {
+        active: !!(stripeSubscription && stripeSubscription.active)
+      };
     }),
     stripeSubscriptionProtectedNumber: withAuth(['stripe:view:self'], (obj: any, args: any, context: any) => {
       return context.stripeSubscription && context.stripeSubscription.active
@@ -47,7 +49,10 @@ export default () => ({
           stripeCustomerId = stripeSubscription.stripeCustomerId;
           stripeSourceId = id;
         } else {
-          const { id, default_source } = await stripe.customers.create({ email: identity.email, source: token });
+          const { id, default_source } = await stripe.customers.create({
+            email: identity.email,
+            source: token
+          });
           stripeCustomerId = id;
           stripeSourceId = default_source;
         }

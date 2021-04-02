@@ -33,7 +33,10 @@ class CancelSubscription extends React.Component<CancelSubscriptionProps, { [key
         submitting: false
       });
     } catch (e) {
-      this.setState({ submitting: false, error: this.props.t('serverError') });
+      this.setState({
+        submitting: false,
+        error: this.props.t('serverError')
+      });
     }
   };
 
@@ -44,9 +47,14 @@ class CancelSubscription extends React.Component<CancelSubscriptionProps, { [key
       <Mutation
         mutation={CANCEL_SUBSCRIPTION}
         update={(cache, { data: { cancelStripeSubscription } }) => {
-          const cachedSubscription: any = cache.readQuery({ query: SUBSCRIPTION_QUERY });
+          const cachedSubscription: any = cache.readQuery({
+            query: SUBSCRIPTION_QUERY
+          });
           cachedSubscription.stripeSubscription = cancelStripeSubscription;
-          cache.writeQuery({ query: SUBSCRIPTION_QUERY, data: cachedSubscription });
+          cache.writeQuery({
+            query: SUBSCRIPTION_QUERY,
+            data: cachedSubscription
+          });
         }}
         refetchQueries={[{ query: CREDIT_CARD_QUERY }]}
       >

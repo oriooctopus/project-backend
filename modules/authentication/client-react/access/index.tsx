@@ -38,7 +38,9 @@ class PageReloader extends React.Component<PageReloaderProps> {
   }
 
   public render() {
-    return React.cloneElement(this.props.children, { key: this.state.key });
+    return React.cloneElement(this.props.children, {
+      key: this.state.key
+    });
   }
 }
 

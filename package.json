@@ -30,26 +30,13 @@
     "test": "yarn tests && yarn lint",
     "tests": "lerna run --parallel tests --stream",
     "tests:watch": "lerna run --parallel tests:watch --stream",
-    "lint": "yarn eslint && yarn tslint",
+    "lint": "yarn eslint --fix && yarn tslint --fix",
     "eslint": "eslint --fix --ext js --ext jsx --ext json .",
     "tslint": "tslint --fix -p tsconfig.json -c tslint.json",
+    "prettier": "prettier --config .prettierrc --write \"**/*.{js,md,mdx,ts,tsx,scss}\" --ignore-path **/node_modules",
     "heroku-postbuild": "lerna run --parallel heroku-postbuild --stream",
     "precommit": "lint-staged",
     "postinstall": "opencollective postinstall"
-  },
-  "lint-staged": {
-    "*.{js,jsx,json}": [
-      "eslint --fix",
-      "git add"
-    ],
-    "*.{ts,tsx}": [
-      "tslint --fix",
-      "git add"
-    ],
-    "*.graphql": [
-      "prettier --parser graphql --write",
-      "git add"
-    ]
   },
   "repository": {
     "type": "git",

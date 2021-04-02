@@ -27,7 +27,7 @@ export default function selectAdapter(options) {
     count: options.count,
     countDistinct: options.countDistinct,
     onlyCount: options.onlyCount,
-    withCount: options.withCount
+    withCount: options.withCount,
   };
 
   return async function(args, trx) {
@@ -37,8 +37,8 @@ export default function selectAdapter(options) {
         {
           prefilters: args.filters,
           postfiltersBool: args.mergeBool || 'and',
-          postfilters: opts.filters
-        }
+          postfilters: opts.filters,
+        },
       ];
       args.joins = opts.joins ? opts.joins.concat(args.joins) : args.joins;
       args.orderBys = opts.orderBys ? opts.orderBys.concat(args.orderBys) : args.orderBys;

@@ -19,7 +19,10 @@ const mockedCache = {
 
 const resolvers = {
   defaults: {
-    clientCounter: { amount: COUNTER_APOLLO_LINK_VALUE, __typename: 'ClientCounter' }
+    clientCounter: {
+      amount: COUNTER_APOLLO_LINK_VALUE,
+      __typename: 'ClientCounter'
+    }
   },
   resolvers: {
     Query: {

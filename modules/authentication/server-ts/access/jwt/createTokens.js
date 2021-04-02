@@ -10,7 +10,9 @@ const createTokens = async (identity, secret, refreshSecret, t) => {
     throw new AuthenticationError(t('auth:identityWithoutId'));
   }
 
-  const createToken = jwt.sign({ identity }, secret, { expiresIn: tokenExpiresIn });
+  const createToken = jwt.sign({ identity }, secret, {
+    expiresIn: tokenExpiresIn,
+  });
   const createRefreshToken = jwt.sign({ id: identity.id }, refreshSecret, { expiresIn: refreshTokenExpiresIn });
 
   return Promise.all([createToken, createRefreshToken]);

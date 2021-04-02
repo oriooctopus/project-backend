@@ -11,8 +11,16 @@ const createNode = (id: number) => ({
   title: `Post title ${id}`,
   content: `Post content ${id}`,
   comments: [
-    { id: id * 1000 + 1, content: 'Post comment 1', __typename: 'Comment' },
-    { id: id * 1000 + 2, content: 'Post comment 2', __typename: 'Comment' }
+    {
+      id: id * 1000 + 1,
+      content: 'Post comment 1',
+      __typename: 'Comment'
+    },
+    {
+      id: id * 1000 + 2,
+      content: 'Post comment 2',
+      __typename: 'Comment'
+    }
   ],
   __typename: 'Post'
 });
@@ -222,8 +230,12 @@ describe('Posts and comments example UI works', () => {
 
     // FIXME: `act` should be enabled here and below, when `formik` will support it correctly
     // act(() => {
-    fireEvent.change(dom.getByPlaceholderText('Title'), { target: { value: 'Post title 44' } });
-    fireEvent.change(dom.getByPlaceholderText('Content'), { target: { value: 'Post content 44' } });
+    fireEvent.change(dom.getByPlaceholderText('Title'), {
+      target: { value: 'Post title 44' }
+    });
+    fireEvent.change(dom.getByPlaceholderText('Content'), {
+      target: { value: 'Post content 44' }
+    });
     fireEvent.click(dom.getByText('Update'));
     // });
 
@@ -247,7 +259,9 @@ describe('Posts and comments example UI works', () => {
       expect(dom.getByText(/Edit[\s]+Post/)).toBeDefined();
     });
 
-    fireEvent.change(dom.getByPlaceholderText('Comment'), { target: { value: 'Post comment 24' } });
+    fireEvent.change(dom.getByPlaceholderText('Comment'), {
+      target: { value: 'Post comment 24' }
+    });
     fireEvent.click(dom.getByText('Save'));
 
     await wait(() => {
@@ -334,7 +348,9 @@ describe('Posts and comments example UI works', () => {
 
     await waitForElement(() => dom.getByDisplayValue('Post comment 2'));
 
-    fireEvent.change(dom.getByDisplayValue('Post comment 2'), { target: { value: 'Edited comment 2' } });
+    fireEvent.change(dom.getByDisplayValue('Post comment 2'), {
+      target: { value: 'Edited comment 2' }
+    });
     fireEvent.submit(dom.getByText('Save'));
 
     await wait(() => {

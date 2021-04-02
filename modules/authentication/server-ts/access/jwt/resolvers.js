@@ -13,8 +13,8 @@ export default () => ({
       {
         getIdentity,
         getHash,
-        req: { t }
-      }
+        req: { t },
+      },
     ) {
       const decodedToken = jwt.decode(inputRefreshToken);
       const isValidToken = decodedToken && decodedToken.id;
@@ -41,8 +41,8 @@ export default () => ({
 
       return {
         accessToken,
-        refreshToken
+        refreshToken,
       };
-    }
-  }
+    },
+  },
 });

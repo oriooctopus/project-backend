@@ -36,7 +36,9 @@ const AddSubscription = ({ t, history, navigation }: AddSubscriptionProps) => {
       // create credit card token
       preparedCreditCard = await createCreditCardToken(creditCardInput, stripe);
 
-      await addSubscription({ variables: { input: preparedCreditCard } });
+      await addSubscription({
+        variables: { input: preparedCreditCard }
+      });
 
       setSubmitting(false);
       history ? history.push('/subscriber-page') : navigation.goBack();
@@ -62,7 +64,9 @@ const AddSubscription = ({ t, history, navigation }: AddSubscriptionProps) => {
       <Mutation
         mutation={ADD_SUBSCRIPTION}
         update={(cache: ApolloCache<any>, { data: { addStripeSubscription } }: any) => {
-          const data: any = cache.readQuery({ query: SUBSCRIPTION_QUERY });
+          const data: any = cache.readQuery({
+            query: SUBSCRIPTION_QUERY
+          });
           data.stripeSubscription = addStripeSubscription;
           cache.writeQuery({ query: SUBSCRIPTION_QUERY, data });
         }}

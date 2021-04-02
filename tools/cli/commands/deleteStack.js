@@ -17,7 +17,7 @@ const handleDeleteStackCommand = (stackList, logger, isShowStackList) => {
   if (isShowStackList) {
     displayStackList(logger);
   } else if (checkStackList(stackList, logger)) {
-    deleteStack(stackList.map(stack => stack.toLowerCase()), logger);
+    deleteStack(stackList.map((stack) => stack.toLowerCase()), logger);
   }
 };
 
@@ -26,7 +26,7 @@ const handleDeleteStackCommand = (stackList, logger, isShowStackList) => {
  *
  * @param {Function} logger - The Logger
  */
-const displayStackList = logger => {
+const displayStackList = (logger) => {
   // getting a list of existing technologies
   const existingStackList = getExistingStackList();
 
@@ -38,7 +38,7 @@ const displayStackList = logger => {
  *
  * @param {Array} stackList - The technology list selected by user
  */
-const deleteStack = stackList => {
+const deleteStack = (stackList) => {
   const stackDirList = collectStackDirList(stackList);
   deleteStackDir(stackDirList);
 };
@@ -49,10 +49,10 @@ const deleteStack = stackList => {
  * @param {Array} stackList - The list of technologies
  * @returns {Array} - The full list of stack directories
  */
-const collectStackDirList = stackList => {
+const collectStackDirList = (stackList) => {
   const stackDirList = Object.keys(STACK_MAP).reduce(
     (acc, curr) => (!stackList.includes(STACK_MAP[curr].name) ? acc : [...acc, ...STACK_MAP[curr].subdirs]),
-    []
+    [],
   );
 
   return stackDirList;
@@ -64,8 +64,8 @@ const collectStackDirList = stackList => {
 const getExistingStackList = () =>
   fs
     .readdirSync(`${BASE_PATH}/packages`)
-    .filter(stack => Object.keys(STACK_MAP).includes(stack))
-    .map(stack => STACK_MAP[stack].name);
+    .filter((stack) => Object.keys(STACK_MAP).includes(stack))
+    .map((stack) => STACK_MAP[stack].name);
 
 /**
  * Checks the list of technologies selected by the user
@@ -79,7 +79,7 @@ const checkStackList = (stackList, logger) => {
   const existingStackList = getExistingStackList();
 
   // technology stack list supported by the kit, but not currently preset in a project
-  const notExistingStackList = stackList.filter(stack => !existingStackList.includes(stack));
+  const notExistingStackList = stackList.filter((stack) => !existingStackList.includes(stack));
 
   if (notExistingStackList.length) {
     // show a log in the shell for non-existent technology stack

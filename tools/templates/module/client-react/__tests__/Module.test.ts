@@ -1,6 +1,9 @@
 import { expect } from 'chai';
 
-import { updateContent, Renderer } from '@gqlapp/testing-client-react';
+import {
+  updateContent,
+  Renderer,
+} from '@gqlapp/testing-client-react';
 
 describe('$Module$ UI works', () => {
   const renderer = new Renderer({});
@@ -14,6 +17,8 @@ describe('$Module$ UI works', () => {
   });
 
   it('$Module$ page has title', async () => {
-    expect(content.textContent).to.include('Hello, This is the $Module$ module');
+    expect(content.textContent).to.include(
+      'Hello, This is the $Module$ module',
+    );
   });
 });

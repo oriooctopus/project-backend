@@ -5,7 +5,7 @@ const path = require('path');
 const modulesDir = __dirname + '/../../modules';
 const virtualDirs = {
   [path.resolve('/module-migrations')]: glob.sync(path.join(modulesDir, '**/migrations')),
-  [path.resolve('/module-seeds')]: glob.sync(path.join(modulesDir, '**/seeds'))
+  [path.resolve('/module-seeds')]: glob.sync(path.join(modulesDir, '**/seeds')),
 };
 const virtualFiles = {};
 

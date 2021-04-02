@@ -35,9 +35,14 @@ const CancelSubscription = ({ t }: CancelSubscriptionProps) => {
     <Mutation
       mutation={CANCEL_SUBSCRIPTION}
       update={(cache: ApolloCache<any>, { data: { cancelStripeSubscription } }: any) => {
-        const cachedSubscription: any = cache.readQuery({ query: SUBSCRIPTION_QUERY });
+        const cachedSubscription: any = cache.readQuery({
+          query: SUBSCRIPTION_QUERY
+        });
         cachedSubscription.stripeSubscription = cancelStripeSubscription;
-        cache.writeQuery({ query: SUBSCRIPTION_QUERY, data: cachedSubscription });
+        cache.writeQuery({
+          query: SUBSCRIPTION_QUERY,
+          data: cachedSubscription
+        });
       }}
       refetchQueries={[{ query: CREDIT_CARD_QUERY }]}
     >

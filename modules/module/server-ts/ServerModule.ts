@@ -114,7 +114,14 @@ class ServerModule extends CommonModule {
     for (const createContextFunc of this.createContextFunc || []) {
       graphqlContext = merge(
         graphqlContext,
-        await createContextFunc({ req, res, connectionParams, webSocket, graphqlContext, appContext })
+        await createContextFunc({
+          req,
+          res,
+          connectionParams,
+          webSocket,
+          graphqlContext,
+          appContext
+        })
       );
     }
     return graphqlContext;

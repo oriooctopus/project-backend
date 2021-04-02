@@ -71,7 +71,10 @@ export default class PostDAO {
   }
 
   public addReview({ content, postId }: Review) {
-    return returnId(knex('review')).insert({ content, post_id: postId });
+    return returnId(knex('review')).insert({
+      content,
+      post_id: postId
+    });
   }
 
   public getReview(id: number) {

@@ -8,18 +8,32 @@ import { Route, NavLink } from 'react-router-dom';
 import { MenuItem } from '../../modules/common/components/web';
 import resources from './locales';
 
-const NavLinkWithI18n = translate('$module$')(({ t }: { t: TranslateFunction }) => (
-  <NavLink to="/$module$" className="nav-link" activeClassName="active">
-    {t('$module$:navLink')}
-  </NavLink>
-));
+const NavLinkWithI18n = translate('$module$')(
+  ({ t }: { t: TranslateFunction }) => (
+    <NavLink
+      to="/$module$"
+      className="nav-link"
+      activeClassName="active"
+    >
+      {t('$module$:navLink')}
+    </NavLink>
+  ),
+);
 
 export default new ClientModule({
-  route: [<Route exact path="/$module$" component={loadable(() => import('./containers/$Module$').then(c => c.default))} />],
+  route: [
+    <Route
+      exact
+      path="/$module$"
+      component={loadable(() =>
+        import('./containers/$Module$').then((c) => c.default),
+      )}
+    />,
+  ],
   navItem: [
     <MenuItem key="/$module$">
       <NavLinkWithI18n />
-    </MenuItem>
+    </MenuItem>,
   ],
-  localization: [{ ns: '$module$', resources }]
+  localization: [{ ns: '$module$', resources }],
 });

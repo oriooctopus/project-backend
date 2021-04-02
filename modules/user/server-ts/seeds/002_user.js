@@ -8,7 +8,7 @@ export async function seed(knex, Promise) {
     'auth_certificate',
     'auth_facebook',
     'auth_github',
-    'auth_linkedin'
+    'auth_linkedin',
   ]);
 
   const id = await returnId(knex('user')).insert({
@@ -16,14 +16,14 @@ export async function seed(knex, Promise) {
     email: 'admin@example.com',
     password_hash: await bcrypt.hash('admin123', 12),
     role: 'admin',
-    is_active: true
+    is_active: true,
   });
 
   await returnId(
     knex('auth_certificate').insert({
       serial: 'admin-123',
-      user_id: id[0]
-    })
+      user_id: id[0],
+    }),
   );
 
   await returnId(knex('user')).insert({
@@ -31,11 +31,11 @@ export async function seed(knex, Promise) {
     email: 'user@example.com',
     password_hash: await bcrypt.hash('user1234', 12),
     role: 'user',
-    is_active: true
+    is_active: true,
   });
   await returnId(knex('user_profile')).insert({
     user_id: 2,
     first_name: 'oliver',
-    last_name: 'ullman'
+    last_name: 'ullman',
   });
 }

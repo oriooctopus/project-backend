@@ -1,4 +1,4 @@
-module.exports = api => {
+module.exports = (api) => {
   const isTest = api.env('test');
   api.cache(true);
   if (isTest) {
@@ -7,7 +7,7 @@ module.exports = api => {
       presets: [
         '@babel/preset-typescript',
         'module:metro-react-native-babel-preset',
-        ['@babel/preset-env', { modules: 'commonjs' }]
+        ['@babel/preset-env', { modules: 'commonjs' }],
       ],
       plugins: [
         '@babel/plugin-transform-destructuring',
@@ -17,8 +17,8 @@ module.exports = api => {
         ['@babel/plugin-proposal-decorators', { legacy: true }],
         ['@babel/plugin-proposal-class-properties', { loose: true }],
         '@babel/plugin-proposal-object-rest-spread',
-        ['styled-components', { ssr: true }]
-      ]
+        ['styled-components', { ssr: true }],
+      ],
     };
   } else {
     return {
@@ -27,13 +27,13 @@ module.exports = api => {
       plugins: [
         'transform-inline-environment-variables',
         ['styled-components', { ssr: true }],
-        ['import', { libraryName: 'antd-mobile' }]
+        ['import', { libraryName: 'antd-mobile' }],
       ],
       env: {
         production: {
-          compact: true
-        }
-      }
+          compact: true,
+        },
+      },
     };
   }
 };

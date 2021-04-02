@@ -9,16 +9,20 @@ import settings from '@gqlapp/config';
 
 import User from '../sql';
 
-const createPasswordHash = password => bcrypt.hash(password, 12) || false;
+const createPasswordHash = (password) => bcrypt.hash(password, 12) || false;
 
 const validateUserPassword = async (user, password, t) => {
   if (!user) {
     // user with provided email not found
-    return { usernameOrEmail: t('user:auth.password.validPasswordEmail') };
+    return {
+      usernameOrEmail: t('user:auth.password.validPasswordEmail'),
+    };
   }
 
   if (settings.auth.password.requireEmailConfirmation && !user.isActive) {
-    return { usernameOrEmail: t('user:auth.password.emailConfirmation') };
+    return {
+      usernameOrEmail: t('user:auth.password.emailConfirmation'),
+    };
   }
 
   const valid = await bcrypt.compare(password, user.passwordHash);
@@ -33,13 +37,16 @@ export default () => ({
     async login(
       obj,
       {
-        input: { usernameOrEmail, password }
+        input: { usernameOrEmail, password },
       },
-      { req }
+      { req },
     ) {
       const user = await User.getUserByUsernameOrEmail(usernameOrEmail);
       const errors = await validateUserPassword(user, password, req.t);
-      if (!isEmpty(errors)) throw new UserInputError('Failed valid user password', { errors });
+      if (!isEmpty(errors))
+        throw new UserInputError('Failed valid user password', {
+          errors,
+        });
       const tokens = await access.grantAccess(user, req, user.passwordHash);
       return { user, tokens };
     },
@@ -79,7 +86,7 @@ export default () => ({
               <p>Welcome to ${settings.app.name}. Please click the following link to confirm your email:</p>
               <p><a href="${url}">${url}</a></p>
               <p>Below are your login information</p>
-              <p>Your email is: ${user.email}</p>`
+              <p>Your email is: ${user.email}</p>`,
           });
           log.info(`Sent registration confirmation email to: ${user.email}`);
         });
@@ -104,10 +111,10 @@ export default () => ({
                 from: `${settings.app.name} <${process.env.EMAIL_SENDER || process.env.EMAIL_USER}>`,
                 to: user.email,
                 subject: 'Reset Password',
-                html: `Please click this link to reset your password: <a href="${url}">${url}</a>`
+                html: `Please click this link to reset your password: <a href="${url}">${url}</a>`,
               });
               log.info(`Sent link to reset email to: ${user.email}`);
-            }
+            },
           );
         }
       } catch (e) {
@@ -120,8 +127,8 @@ export default () => ({
       {
         req: { t },
         User,
-        mailer
-      }
+        mailer,
+      },
     ) {
       const errors = {};
       const reset = pick(input, ['password', 'passwordConfirmation', 'token']);
@@ -129,7 +136,9 @@ export default () => ({
         errors.password = t('user:auth.password.passwordsIsNotMatch');
       }
       if (reset.password.length < settings.auth.password.minLength) {
-        errors.password = t('user:auth.password.passwordLength', { length: settings.auth.password.minLength });
+        errors.password = t('user:auth.password.passwordLength', {
+          length: settings.auth.password.minLength,
+        });
       }
       if (!isEmpty(errors)) throw new UserInputError('Failed reset password', { errors });
       const token = Buffer.from(reset.token, 'base64').toString();
@@ -148,11 +157,11 @@ export default () => ({
             subject: 'Your Password Has Been Updated',
             html: `<p>As you requested, your account password has been updated.</p>
                    <p>To view or edit your account settings, please visit the “Profile” page at</p>
-                   <p><a href="${url}">${url}</a></p>`
+                   <p><a href="${url}">${url}</a></p>`,
           });
           log.info(`Sent password has been updated to: ${user.email}`);
         }
       }
-    }
-  }
+    },
+  },
 });

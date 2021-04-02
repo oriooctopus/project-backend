@@ -15,13 +15,19 @@ const middleware = (app, { social }) => {
   app.use(passport.initialize());
 
   app.get('/auth/google', (req, res, next) => {
-    passport.authenticate('google', { scope, state: req.query.expoUrl })(req, res, next);
+    passport.authenticate('google', {
+      scope,
+      state: req.query.expoUrl,
+    })(req, res, next);
   });
 
   app.get(
     '/auth/google/callback',
-    passport.authenticate('google', { session: false, failureRedirect: '/login' }),
-    social.google.onAuthenticationSuccess
+    passport.authenticate('google', {
+      session: false,
+      failureRedirect: '/login',
+    }),
+    social.google.onAuthenticationSuccess,
   );
 };
 
@@ -33,5 +39,5 @@ const onAppCreate = async ({ appContext }) => {
 
 export default new AuthModule({
   middleware: [middleware],
-  onAppCreate: [onAppCreate]
+  onAppCreate: [onAppCreate],
 });
