@@ -1,0 +1,17 @@
+{
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "jsxBracketSameLine": false,
+  "printWidth": 70,
+  "proseWrap": "never",
+  "singleQuote": true,
+  "trailingComma": "all",
+  "overrides": [
+    {
+        "files": "*.scss",
+        "options": {
+            "tabWidth": 2
+        }
+    }
+]
+}

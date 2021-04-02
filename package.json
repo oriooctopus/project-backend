@@ -9,7 +9,7 @@
     "build": "lerna run --scope={server,client,mobile} --parallel build --stream",
     "clean": "lerna run clean --stream",
     "start": "lerna run --scope=server start --stream",
-    "watch": "lerna run --scope={server,client} --parallel watch --stream",
+    "watch": "lerna run --scope=server --parallel watch --stream",
     "watch:vue": "cross-env SSR=false lerna run --scope={server,client-vue} --parallel watch --stream",
     "watch:angular": "cross-env SSR=false lerna run --scope={server,client-angular} --parallel watch --stream",
     "watch:android": "npm-run-all --parallel watch-server watch-android",
