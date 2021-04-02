@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import settings from '@gqlapp/config';
 
-const generateEdgesArray = quantity => {
+const generateEdgesArray = (quantity) => {
   const arr = [];
   for (let i = 1; i <= quantity; i++) {
     arr.push({ cursor: i, node: { id: i, title: 'Item ' + i } });
@@ -26,16 +26,16 @@ export const useDataProvider = () => {
         totalCount: allEdges.length,
         pageInfo: {
           endCursor: endCursor,
-          hasNextPage: hasNextPage
+          hasNextPage: hasNextPage,
         },
         edges: edges,
         offset: offset,
-        limit: itemsNumber
+        limit: itemsNumber,
       });
     },
-    [items]
+    [items],
   );
-  const useMountEffect = fn => useEffect(fn, []);
+  const useMountEffect = (fn) => useEffect(fn, []);
   useMountEffect(() => {
     loadData(0, 'replace');
   });
@@ -65,12 +65,12 @@ export default function withDataProvider(WrappedComponent) {
           totalCount: allEdges.length,
           pageInfo: {
             endCursor: endCursor,
-            hasNextPage: hasNextPage
+            hasNextPage: hasNextPage,
           },
           edges: edges,
           offset: offset,
-          limit: itemsNumber
-        }
+          limit: itemsNumber,
+        },
       });
     };
 

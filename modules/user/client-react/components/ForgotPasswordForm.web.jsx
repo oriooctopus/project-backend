@@ -7,7 +7,7 @@ import { Form, RenderField, Button, Alert } from '@gqlapp/look-client-react';
 import { required, email, validate } from '@gqlapp/validation-common-react';
 
 const forgotPasswordFormSchema = {
-  email: [required, email]
+  email: [required, email],
 };
 
 const ForgotPasswordForm = ({ handleSubmit, errors, sent, values, t }) => {
@@ -37,7 +37,7 @@ ForgotPasswordForm.propTypes = {
   errors: PropTypes.object,
   sent: PropTypes.bool,
   values: PropTypes.object,
-  t: PropTypes.func
+  t: PropTypes.func,
 };
 
 const ForgotPasswordFormWithFormik = withFormik({
@@ -48,12 +48,12 @@ const ForgotPasswordFormWithFormik = withFormik({
     {
       setErrors,
       resetForm,
-      props: { onSubmit }
-    }
+      props: { onSubmit },
+    },
   ) {
     await onSubmit(values)
       .then(() => resetForm())
-      .catch(e => {
+      .catch((e) => {
         if (isFormError(e)) {
           setErrors(e.errors);
         } else {
@@ -61,8 +61,8 @@ const ForgotPasswordFormWithFormik = withFormik({
         }
       });
   },
-  validate: values => validate(values, forgotPasswordFormSchema),
-  displayName: 'ForgotPasswordForm' // helps with React DevTools
+  validate: (values) => validate(values, forgotPasswordFormSchema),
+  displayName: 'ForgotPasswordForm', // helps with React DevTools
 });
 
 export default translate('user')(ForgotPasswordFormWithFormik(ForgotPasswordForm));

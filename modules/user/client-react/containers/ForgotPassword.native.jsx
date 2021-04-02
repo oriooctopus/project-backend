@@ -13,14 +13,14 @@ import FORGOT_PASSWORD from '../graphql/ForgotPassword.graphql';
 class ForgotPassword extends React.Component {
   static propTypes = {
     forgotPassword: PropTypes.func,
-    t: PropTypes.func
+    t: PropTypes.func,
   };
 
   state = {
-    sent: false
+    sent: false,
   };
 
-  onSubmit = async values => {
+  onSubmit = async (values) => {
     const { forgotPassword, t } = this.props;
 
     this.setState({ sent: true });
@@ -44,15 +44,15 @@ const ForgotPasswordWithApollo = compose(
     props: ({ mutate }) => ({
       forgotPassword: async ({ email }) => {
         const {
-          data: { forgotPassword }
+          data: { forgotPassword },
         } = await mutate({
-          variables: { input: { email } }
+          variables: { input: { email } },
         });
 
         return forgotPassword;
-      }
-    })
-  })
+      },
+    }),
+  }),
 )(ForgotPassword);
 
 export default ForgotPasswordWithApollo;

@@ -6,7 +6,7 @@ import { withLoadedUser } from './AuthBase';
 
 const AuthRoute = withLoadedUser(
   ({ currentUser, role, redirect = '/login', redirectOnLoggedIn, component: Component, ...rest }) => {
-    const RenderComponent = props => {
+    const RenderComponent = (props) => {
       const redirectBack =
         props.location.search || (props.location.pathname ? `?redirectBack=${props.location.pathname}` : '');
 
@@ -28,17 +28,17 @@ const AuthRoute = withLoadedUser(
     };
 
     RenderComponent.propTypes = {
-      location: PropTypes.object
+      location: PropTypes.object,
     };
 
     return <Route {...rest} render={RenderComponent} />;
-  }
+  },
 );
 
 AuthRoute.propTypes = {
   role: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
   redirect: PropTypes.string,
-  redirectOnLoggedIn: PropTypes.bool
+  redirectOnLoggedIn: PropTypes.bool,
 };
 
 const isRoleMatch = (role, currentUser) => {

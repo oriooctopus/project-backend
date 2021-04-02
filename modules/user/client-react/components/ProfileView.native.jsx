@@ -21,16 +21,16 @@ const ProfileView = ({ currentUserLoading, currentUser, navigation, t }) => {
     ? [
         {
           label: `${t('profile.card.group.name')}`,
-          value: currentUser.username
+          value: currentUser.username,
         },
         {
           label: `${t('profile.card.group.email')}`,
-          value: currentUser.email
+          value: currentUser.email,
         },
         {
           label: `${t('profile.card.group.role')}`,
-          value: currentUser.role
-        }
+          value: currentUser.role,
+        },
       ]
     : [];
 
@@ -71,26 +71,26 @@ const ProfileView = ({ currentUserLoading, currentUser, navigation, t }) => {
 const styles = StyleSheet.create({
   scrollContainer: {
     paddingTop: 10,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   container: {
-    flex: 1
+    flex: 1,
   },
   cardWrapper: {
-    marginBottom: 15
+    marginBottom: 15,
   },
   linkWrapper: {
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
-  linkText: lookStyles.linkText
+  linkText: lookStyles.linkText,
 });
 
 ProfileView.propTypes = {
   currentUserLoading: PropTypes.bool,
   currentUser: PropTypes.object,
   navigation: PropTypes.object,
-  t: PropTypes.func
+  t: PropTypes.func,
 };
 
 export default translate('user')(ProfileView);

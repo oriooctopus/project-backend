@@ -30,7 +30,7 @@ RenderField.propTypes = {
   type: PropTypes.string,
   meta: PropTypes.object,
   placeholder: PropTypes.string,
-  children: PropTypes.array
+  children: PropTypes.array,
 };
 
 export default RenderField;

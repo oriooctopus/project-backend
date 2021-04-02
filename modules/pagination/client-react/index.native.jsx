@@ -21,15 +21,15 @@ export default new ClientModule({
               headerLeft: (
                 <IconButton iconName="menu" iconSize={32} iconColor="#0275d8" onPress={() => navigation.openDrawer()} />
               ),
-              headerForceInset: {}
-            })
-          }
+              headerForceInset: {},
+            }),
+          },
         }),
         navigationOptions: {
-          drawerLabel: <HeaderTitleWithI18n />
-        }
-      }
-    }
+          drawerLabel: <HeaderTitleWithI18n />,
+        },
+      },
+    },
   ],
-  localization: [{ ns: 'pagination', resources }]
+  localization: [{ ns: 'pagination', resources }],
 });

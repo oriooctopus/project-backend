@@ -9,7 +9,7 @@ const RenderSelect = ({ style, label, ...props }) => {
     iconName: 'caret-down',
     icon: true,
     iconSize: 20,
-    ...props
+    ...props,
   };
   return (
     <View style={styles.container}>
@@ -34,7 +34,7 @@ const RenderSelect = ({ style, label, ...props }) => {
 
 RenderSelect.propTypes = {
   style: PropTypes.number,
-  label: PropTypes.string
+  label: PropTypes.string,
 };
 
 const styles = StyleSheet.create(RenderSelectStyles);

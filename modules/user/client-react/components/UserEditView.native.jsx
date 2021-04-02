@@ -13,7 +13,7 @@ class UserEditView extends React.PureComponent {
     user: PropTypes.object,
     currentUser: PropTypes.object,
     t: PropTypes.func,
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
   };
 
   render() {
@@ -40,8 +40,8 @@ class UserEditView extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center'
-  }
+    justifyContent: 'center',
+  },
 });
 
 export default withLoadedUser(translate('user')(UserEditView));

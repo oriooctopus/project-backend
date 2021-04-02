@@ -10,7 +10,7 @@ import { required, email, validate } from '@gqlapp/validation-common-react';
 import { translate } from '@gqlapp/i18n-client-react';
 
 const forgotPasswordFormSchema = {
-  email: [required, email]
+  email: [required, email],
 };
 
 const ForgotPasswordForm = ({ handleSubmit, values, sent, t }) => {
@@ -55,7 +55,7 @@ ForgotPasswordForm.propTypes = {
   handleSubmit: PropTypes.func,
   t: PropTypes.func,
   values: PropTypes.object,
-  sent: PropTypes.bool
+  sent: PropTypes.bool,
 };
 
 const ForgotPasswordFormWithFormik = withFormik({
@@ -66,15 +66,15 @@ const ForgotPasswordFormWithFormik = withFormik({
     {
       setErrors,
       resetForm,
-      props: { onSubmit }
-    }
+      props: { onSubmit },
+    },
   ) {
     Keyboard.dismiss();
     await onSubmit(values)
       .then(() => {
         resetForm();
       })
-      .catch(e => {
+      .catch((e) => {
         if (isFormError(e)) {
           setErrors(e.errors);
         } else {
@@ -82,8 +82,8 @@ const ForgotPasswordFormWithFormik = withFormik({
         }
       });
   },
-  validate: values => validate(values, forgotPasswordFormSchema),
-  displayName: 'ForgotPasswordForm' // helps with React DevTools
+  validate: (values) => validate(values, forgotPasswordFormSchema),
+  displayName: 'ForgotPasswordForm', // helps with React DevTools
 });
 
 const styles = StyleSheet.create({
@@ -92,10 +92,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'stretch',
     justifyContent: 'center',
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   form: {
-    flex: 2
+    flex: 2,
   },
   alertWrapper: {
     backgroundColor: '#d4edda',
@@ -104,30 +104,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     borderRadius: 5,
-    paddingVertical: 10
+    paddingVertical: 10,
   },
   alertContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'stretch'
+    alignItems: 'stretch',
   },
   alertTextWrapper: {
     padding: 5,
     flex: 20,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   alertIconWrapper: {
     padding: 5,
     flex: 4,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   alertText: {
     color: '#155724',
     fontSize: 20,
-    fontWeight: '400'
-  }
+    fontWeight: '400',
+  },
 });
 
 export default translate('user')(ForgotPasswordFormWithFormik(ForgotPasswordForm));

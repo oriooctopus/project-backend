@@ -19,41 +19,41 @@ const limit =
 
 export const onAddPost = (prev, node) => {
   // ignore if duplicate
-  if (prev.posts.edges.some(post => node.id === post.cursor)) {
+  if (prev.posts.edges.some((post) => node.id === post.cursor)) {
     return update(prev, {
       posts: {
         totalCount: {
-          $set: prev.posts.totalCount - 1
+          $set: prev.posts.totalCount - 1,
         },
         edges: {
-          $set: prev.posts.edges
-        }
-      }
+          $set: prev.posts.edges,
+        },
+      },
     });
   }
 
-  const filteredPosts = prev.posts.edges.filter(post => post.node.id !== null);
+  const filteredPosts = prev.posts.edges.filter((post) => post.node.id !== null);
 
   const edge = {
     cursor: node.id,
     node: node,
-    __typename: 'PostEdges'
+    __typename: 'PostEdges',
   };
 
   return update(prev, {
     posts: {
       totalCount: {
-        $set: prev.posts.totalCount + 1
+        $set: prev.posts.totalCount + 1,
       },
       edges: {
-        $set: [edge, ...filteredPosts]
-      }
-    }
+        $set: [edge, ...filteredPosts],
+      },
+    },
   });
 };
 
 const onDeletePost = (prev, id) => {
-  const index = prev.posts.edges.findIndex(x => x.node.id === id);
+  const index = prev.posts.edges.findIndex((x) => x.node.id === id);
 
   // ignore if not found
   if (index < 0) {
@@ -63,12 +63,12 @@ const onDeletePost = (prev, id) => {
   return update(prev, {
     posts: {
       totalCount: {
-        $set: prev.posts.totalCount - 1
+        $set: prev.posts.totalCount - 1,
       },
       edges: {
-        $splice: [[index, 1]]
-      }
-    }
+        $splice: [[index, 1]],
+      },
+    },
   });
 };
 
@@ -76,7 +76,7 @@ class Post extends React.Component {
   static propTypes = {
     loading: PropTypes.bool.isRequired,
     posts: PropTypes.object,
-    subscribeToMore: PropTypes.func.isRequired
+    subscribeToMore: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -107,7 +107,7 @@ class Post extends React.Component {
     }
   }
 
-  subscribeToPostList = endCursor => {
+  subscribeToPostList = (endCursor) => {
     const { subscribeToMore } = this.props;
 
     this.subscription = subscribeToMore({
@@ -118,10 +118,10 @@ class Post extends React.Component {
         {
           subscriptionData: {
             data: {
-              postsUpdated: { mutation, node }
-            }
-          }
-        }
+              postsUpdated: { mutation, node },
+            },
+          },
+        },
       ) => {
         let newResult = prev;
 
@@ -132,7 +132,7 @@ class Post extends React.Component {
         }
 
         return newResult;
-      }
+      },
     });
   };
 
@@ -146,7 +146,7 @@ export default compose(
     options: () => {
       return {
         variables: { limit: limit, after: 0 },
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'network-only',
       };
     },
     props: ({ data }) => {
@@ -154,7 +154,7 @@ export default compose(
       const loadData = (after, dataDelivery) => {
         return fetchMore({
           variables: {
-            after: after
+            after: after,
           },
           updateQuery: (previousResult, { fetchMoreResult }) => {
             const totalCount = fetchMoreResult.posts.totalCount;
@@ -169,27 +169,27 @@ export default compose(
                 totalCount,
                 edges: displayedEdges,
                 pageInfo,
-                __typename: 'Posts'
-              }
+                __typename: 'Posts',
+              },
             };
-          }
+          },
         });
       };
       if (error) throw new Error(error);
       return { loading, posts, subscribeToMore, loadData };
-    }
+    },
   }),
   graphql(DELETE_POST, {
     props: ({ mutate }) => ({
-      deletePost: id => {
+      deletePost: (id) => {
         mutate({
           variables: { id },
           optimisticResponse: {
             __typename: 'Mutation',
             deletePost: {
               id: id,
-              __typename: 'Post'
-            }
+              __typename: 'Post',
+            },
           },
 
           update: (cache, { data: { deletePost } }) => {
@@ -198,8 +198,8 @@ export default compose(
               query: POSTS_QUERY,
               variables: {
                 limit,
-                after: 0
-              }
+                after: 0,
+              },
             });
 
             const newListPosts = onDeletePost(prevPosts, deletePost.id);
@@ -209,18 +209,18 @@ export default compose(
               query: POSTS_QUERY,
               variables: {
                 limit,
-                after: 0
+                after: 0,
               },
               data: {
                 posts: {
                   ...newListPosts.posts,
-                  __typename: 'Posts'
-                }
-              }
+                  __typename: 'Posts',
+                },
+              },
             });
-          }
+          },
         });
-      }
-    })
-  })
+      },
+    }),
+  }),
 )(Post);

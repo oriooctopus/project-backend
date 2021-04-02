@@ -28,18 +28,18 @@ export default graphql(ADD_POST, {
             id: null,
             title: title,
             content: content,
-            comments: []
-          }
-        }
+            comments: [],
+          },
+        },
       });
 
       if (history) {
         return history.push('/post/' + postData.data.addPost.id, {
-          post: postData.data.addPost
+          post: postData.data.addPost,
         });
       } else if (navigation) {
         return navigation.navigate('PostEdit', { id: postData.data.addPost.id });
       }
-    }
-  })
+    },
+  }),
 })(PostAdd);

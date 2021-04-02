@@ -19,41 +19,41 @@ const limit =
 
 export const onAddPost = (prev, node) => {
   // ignore if duplicate
-  if (prev.posts.edges.some(post => node.id === post.cursor)) {
+  if (prev.posts.edges.some((post) => node.id === post.cursor)) {
     return update(prev, {
       posts: {
         totalCount: {
-          $set: prev.posts.totalCount - 1
+          $set: prev.posts.totalCount - 1,
         },
         edges: {
-          $set: prev.posts.edges
-        }
-      }
+          $set: prev.posts.edges,
+        },
+      },
     });
   }
 
-  const filteredPosts = prev.posts.edges.filter(post => post.node.id !== null);
+  const filteredPosts = prev.posts.edges.filter((post) => post.node.id !== null);
 
   const edge = {
     cursor: node.id,
     node: node,
-    __typename: 'PostEdges'
+    __typename: 'PostEdges',
   };
 
   return update(prev, {
     posts: {
       totalCount: {
-        $set: prev.posts.totalCount + 1
+        $set: prev.posts.totalCount + 1,
       },
       edges: {
-        $set: [edge, ...filteredPosts]
-      }
-    }
+        $set: [edge, ...filteredPosts],
+      },
+    },
   });
 };
 
 const onDeletePost = (prev, id) => {
-  const index = prev.posts.edges.findIndex(x => x.node.id === id);
+  const index = prev.posts.edges.findIndex((x) => x.node.id === id);
 
   // ignore if not found
   if (index < 0) {
@@ -63,12 +63,12 @@ const onDeletePost = (prev, id) => {
   return update(prev, {
     posts: {
       totalCount: {
-        $set: prev.posts.totalCount - 1
+        $set: prev.posts.totalCount - 1,
       },
       edges: {
-        $splice: [[index, 1]]
-      }
-    }
+        $splice: [[index, 1]],
+      },
+    },
   });
 };
 
@@ -81,10 +81,10 @@ const subscribeToPostList = (subscribeToMore, endCursor) =>
       {
         subscriptionData: {
           data: {
-            postsUpdated: { mutation, node }
-          }
-        }
-      }
+            postsUpdated: { mutation, node },
+          },
+        },
+      },
     ) => {
       let newResult = prev;
 
@@ -95,17 +95,17 @@ const subscribeToPostList = (subscribeToMore, endCursor) =>
       }
 
       return newResult;
-    }
+    },
   });
 
-const Post = props => {
+const Post = (props) => {
   useEffect(() => {
     if (props.posts) {
       const {
         posts,
         posts: {
-          pageInfo: { endCursor: propsEndCursor }
-        }
+          pageInfo: { endCursor: propsEndCursor },
+        },
       } = props;
       const endCursor = posts ? propsEndCursor : 0;
       const subscribe = subscribeToPostList(props.subscribeToMore, endCursor);
@@ -119,7 +119,7 @@ const Post = props => {
 Post.propTypes = {
   loading: PropTypes.bool.isRequired,
   posts: PropTypes.object,
-  subscribeToMore: PropTypes.func.isRequired
+  subscribeToMore: PropTypes.func.isRequired,
 };
 
 export default compose(
@@ -127,7 +127,7 @@ export default compose(
     options: () => {
       return {
         variables: { limit: limit, after: 0 },
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'network-only',
       };
     },
     props: ({ data }) => {
@@ -135,7 +135,7 @@ export default compose(
       const loadData = (after, dataDelivery) => {
         return fetchMore({
           variables: {
-            after: after
+            after: after,
           },
           updateQuery: (previousResult, { fetchMoreResult }) => {
             const totalCount = fetchMoreResult.posts.totalCount;
@@ -150,27 +150,27 @@ export default compose(
                 totalCount,
                 edges: displayedEdges,
                 pageInfo,
-                __typename: 'Posts'
-              }
+                __typename: 'Posts',
+              },
             };
-          }
+          },
         });
       };
       if (error) throw new Error(error);
       return { loading, posts, subscribeToMore, loadData };
-    }
+    },
   }),
   graphql(DELETE_POST, {
     props: ({ mutate }) => ({
-      deletePost: id => {
+      deletePost: (id) => {
         mutate({
           variables: { id },
           optimisticResponse: {
             __typename: 'Mutation',
             deletePost: {
               id: id,
-              __typename: 'Post'
-            }
+              __typename: 'Post',
+            },
           },
 
           update: (cache, { data: { deletePost } }) => {
@@ -179,8 +179,8 @@ export default compose(
               query: POSTS_QUERY,
               variables: {
                 limit,
-                after: 0
-              }
+                after: 0,
+              },
             });
 
             const newListPosts = onDeletePost(prevPosts, deletePost.id);
@@ -190,18 +190,18 @@ export default compose(
               query: POSTS_QUERY,
               variables: {
                 limit,
-                after: 0
+                after: 0,
               },
               data: {
                 posts: {
                   ...newListPosts.posts,
-                  __typename: 'Posts'
-                }
-              }
+                  __typename: 'Posts',
+                },
+              },
             });
-          }
+          },
         });
-      }
-    })
-  })
+      },
+    }),
+  }),
 )(Post);

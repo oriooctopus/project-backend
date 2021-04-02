@@ -24,16 +24,16 @@ export default new ClientModule({
                 <IconButton iconName="menu" iconSize={32} iconColor="#0275d8" onPress={() => navigation.openDrawer()} />
               ),
               headerStyle: { backgroundColor: '#fff' },
-              headerForceInset: {}
-            })
-          }
+              headerForceInset: {},
+            }),
+          },
         }),
         navigationOptions: {
-          drawerLabel: <HeaderTitleWithI18n />
-        }
-      }
-    }
+          drawerLabel: <HeaderTitleWithI18n />,
+        },
+      },
+    },
   ],
   localization: [{ ns: 'upload', resources }],
-  createNetLink
+  createNetLink,
 });

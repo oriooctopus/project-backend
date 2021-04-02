@@ -10,7 +10,7 @@ import settings from '@gqlapp/config';
 import PostForm from './PostForm';
 import PostComments from '../containers/PostComments';
 
-const onSubmit = (post, editPost) => values => {
+const onSubmit = (post, editPost) => (values) => {
   editPost(post.id, values.title, values.content);
 };
 
@@ -27,8 +27,8 @@ const PostEditView = ({ loading, post, match, location, subscribeToMore, editPos
       meta={[
         {
           name: 'description',
-          content: t('post.meta')
-        }
+          content: t('post.meta'),
+        },
       ]}
     />
   );
@@ -69,7 +69,7 @@ PostEditView.propTypes = {
   match: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   subscribeToMore: PropTypes.func.isRequired,
-  t: PropTypes.func
+  t: PropTypes.func,
 };
 
 export default translate('post')(PostEditView);
