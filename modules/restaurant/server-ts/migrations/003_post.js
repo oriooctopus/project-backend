@@ -4,7 +4,9 @@ exports.up = function(knex, Promise) {
       .createTable('restaurant', (table) => {
         table.increments();
         table.string('title');
-        table.string('content');
+        table.string('description');
+        table.string('location');
+        table.string('image_url');
         table.timestamps(false, true);
       })
       .createTable('review', (table) => {

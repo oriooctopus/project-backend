@@ -1,6 +1,8 @@
 {
   "name": "@gqlapp/restaurant-server-ts",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "moment": "^2.29.1"
+  }
 }
-

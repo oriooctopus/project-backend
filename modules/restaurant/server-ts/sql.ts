@@ -1,15 +1,38 @@
-import { decamelizeKeys } from 'humps';
+import { camelizeKeys, decamelizeKeys } from 'humps';
 
-import { knex, returnId, orderedFor } from '@gqlapp/database-server-ts';
+import {
+  knex,
+  returnId,
+  orderedFor,
+} from '@gqlapp/database-server-ts';
+
+const restaurantFields = [
+  'id',
+  'title',
+  'description',
+  'location',
+  'image_url as imageUrl',
+];
+const reviewFields = [
+  'id',
+  'content',
+  'rating',
+  'restaurant_id AS restaurantId',
+  'user_id AS userId',
+  'created_at AS createdAt',
+];
 
 export interface Restaurant {
   title: string;
-  content: string;
+  description: string;
+  imageUrl: string;
+  location: string;
 }
 
 export interface Review {
-  restaurantId: number;
+  createdAt: number;
   content: string;
+  restaurantId: number;
   userId: number;
   rating: number;
 }
@@ -22,17 +45,10 @@ export interface ReviewComment {
 export interface Identifier {
   id: number;
 }
-
 export default class RestaurantDAO {
-
-
-  public refreshRestaurantRatingsData() {
-
-  }
-
   public restaurantsPagination(limit: number, after: number) {
     return knex
-      .select('id', 'title', 'content')
+      .select(...restaurantFields)
       .from('restaurant')
       .orderBy('id', 'desc')
       .limit(limit)
@@ -41,10 +57,13 @@ export default class RestaurantDAO {
 
   public async getReviewsForRestaurantIds(restaurantIds: number[]) {
     const res = await knex
-      .select('id', 'content', 'rating', 'restaurant_id AS restaurantId', 'user_id AS userId')
+      .select(
+        reviewFields
+      )
       .from('review')
       .whereIn('restaurant_id', restaurantIds);
 
+    console.log('result', res);
     return orderedFor(res, restaurantIds, 'restaurantId', false);
   }
 
@@ -56,7 +75,7 @@ export default class RestaurantDAO {
 
   public restaurant(id: number) {
     return knex
-      .select('id', 'title', 'content')
+      .select(...restaurantFields)
       .from('restaurant')
       .where('id', '=', id)
       .first();
@@ -86,10 +105,14 @@ export default class RestaurantDAO {
       .del();
   }
 
-  public editRestaurant({ id, title, content }: Restaurant & Identifier) {
+  public editRestaurant({
+    id,
+    title,
+    description,
+  }: Restaurant & Identifier) {
     return knex('restaurant')
       .where('id', '=', id)
-      .update({ title, content });
+      .update({ title, description });
   }
 
   public addReview({ content, restaurantId, rating }: Review) {
@@ -102,7 +125,7 @@ export default class RestaurantDAO {
 
   public getReview(id: number) {
     return knex
-      .select('id', 'content', 'rating')
+      .select(reviewFields)
       .from('review')
       .where('id', '=', id)
       .first();
@@ -119,7 +142,7 @@ export default class RestaurantDAO {
       .where('id', '=', id)
       .update({
         content,
-        rating
+        rating,
       });
   }
 

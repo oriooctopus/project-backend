@@ -3,6 +3,8 @@ import { createBatchResolver } from 'graphql-resolve-batch';
 // interfaces
 import { Restaurant, Review, Identifier } from './sql';
 
+import { timestampToDate } from './utils';
+
 interface Edges {
   cursor: number;
   node: Restaurant & Identifier;
@@ -50,16 +52,21 @@ export default (pubsub: PubSub) => ({
       context: any,
     ) {
       const edgesArray: Edges[] = [];
-      const restaurants = await context.Restaurant.restaurantsPagination(limit, after);
+      const restaurants = await context.Restaurant.restaurantsPagination(
+        limit,
+        after,
+      );
       const total = (await context.Restaurant.getTotal()).count;
       const hasNextPage = total > after + limit;
 
-      restaurants.map((restaurant: Restaurant & Identifier, index: number) => {
-        edgesArray.push({
-          cursor: after + index,
-          node: restaurant,
-        });
-      });
+      restaurants.map(
+        (restaurant: Restaurant & Identifier, index: number) => {
+          edgesArray.push({
+            cursor: after + index,
+            node: restaurant,
+          });
+        },
+      );
       const endCursor =
         edgesArray.length > 0
           ? edgesArray[edgesArray.length - 1].cursor
@@ -85,6 +92,10 @@ export default (pubsub: PubSub) => ({
     userProfile({ userId }: Review, _: any, context: any) {
       return context.User.getUserProfile(userId);
     },
+    date(all: Review, _: any, context: any) {
+      console.log('all', all);
+      return timestampToDate(all.createdAt);
+    },
   },
   Restaurant: {
     reviews: createBatchResolver((sources, args, context) => {
@@ -102,7 +113,11 @@ export default (pubsub: PubSub) => ({
     },
   },
   Mutation: {
-    async addRestaurant(obj: any, { input }: RestaurantInput, context: any) {
+    async addRestaurant(
+      obj: any,
+      { input }: RestaurantInput,
+      context: any,
+    ) {
       const [id] = await context.Restaurant.addRestaurant(input);
       const restaurant = await context.Restaurant.restaurant(id);
       // publish for restaurant list
@@ -115,7 +130,11 @@ export default (pubsub: PubSub) => ({
       });
       return restaurant;
     },
-    async deleteRestaurant(obj: any, { id }: Identifier, context: any) {
+    async deleteRestaurant(
+      obj: any,
+      { id }: Identifier,
+      context: any,
+    ) {
       const restaurant = await context.Restaurant.restaurant(id);
       const isDeleted = await context.Restaurant.deleteRestaurant(id);
       if (isDeleted) {
@@ -146,7 +165,9 @@ export default (pubsub: PubSub) => ({
       context: any,
     ) {
       await context.Restaurant.editRestaurant(input);
-      const restaurant = await context.Restaurant.restaurant(input.id);
+      const restaurant = await context.Restaurant.restaurant(
+        input.id,
+      );
       // publish for restaurant list
       pubsub.publish(RESTAURANTS_SUBSCRIPTION, {
         restaurantsUpdated: {
@@ -181,9 +202,7 @@ export default (pubsub: PubSub) => ({
     },
     async deleteReview(
       obj: any,
-      {
-        input: { id, restaurantId },
-      }: ReviewInputWithId,
+      { input: { id, restaurantId } }: ReviewInputWithId,
       context: any,
     ) {
       await context.Restaurant.deleteReview(id);
@@ -222,7 +241,9 @@ export default (pubsub: PubSub) => ({
       context: any,
     ) {
       const [id] = await context.Restaurant.addReviewComment(input);
-      const reviewComment = await context.Restaurant.getReviewComment(id);
+      const reviewComment = await context.Restaurant.getReviewComment(
+        id,
+      );
       // publish for edit restaurant page
       pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
         reviewCommentUpdated: {
@@ -236,9 +257,7 @@ export default (pubsub: PubSub) => ({
     },
     async deleteReviewComment(
       obj: any,
-      {
-        input: { id, restaurantId },
-      }: ReviewCommentInputWithId,
+      { input: { id, restaurantId } }: ReviewCommentInputWithId,
       context: any,
     ) {
       await context.Restaurant.deleteReviewComment(id);
@@ -295,7 +314,10 @@ export default (pubsub: PubSub) => ({
       subscribe: withFilter(
         () => pubsub.asyncIterator(REVIEW_SUBSCRIPTION),
         (payload, variables) => {
-          return payload.reviewUpdated.restaurantId === variables.restaurantId;
+          return (
+            payload.reviewUpdated.restaurantId ===
+            variables.restaurantId
+          );
         },
       ),
     },
@@ -304,7 +326,8 @@ export default (pubsub: PubSub) => ({
         () => pubsub.asyncIterator(REVIEW_COMMENT_SUBSCRIPTION),
         (payload, variables) => {
           return (
-            payload.reviewCommentUpdated.restaurantId === variables.restaurantId
+            payload.reviewCommentUpdated.restaurantId ===
+            variables.restaurantId
           );
         },
       ),

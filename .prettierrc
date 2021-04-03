@@ -5,7 +5,7 @@
   "printWidth": 70,
   "proseWrap": "never",
   "singleQuote": true,
-  "trailingComma": "all",
+  "trailingComma": "none",
   "overrides": [
     {
         "files": "*.scss",

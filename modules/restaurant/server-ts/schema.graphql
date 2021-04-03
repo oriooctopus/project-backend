@@ -1,15 +1,19 @@
 type Restaurant {
   id: Int!
   title: String!
-  content: String!
+  description: String!
+  imageUrl: String!
+  location: String!
   reviews: [Review]
-  averageRating: Int!
+  averageRating: Float!
   totalReviews: Int!
 }
 
 type Review {
+  createdAt: String!
   id: Int!
   content: String!
+  date: String!
   rating: Int!
   userId: Int!
   restaurantId: Int!
@@ -75,6 +79,7 @@ input EditRestaurantInput {
 
 input AddReviewInput {
   content: String!
+  rating: Int!
   # Needed for reviewUpdated Subscription filter
   restaurantId: Int!
 }
