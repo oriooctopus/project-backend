@@ -12,7 +12,6 @@ class RestaurantService {
   // }
 
   public async customerCanAddReview(userId: number, restaurantId: number) {
-    console.log('restaurant orm', ORM.getReviewFromUserAndRestaurantId)
     const existingReview = await ORM.getReviewFromUserAndRestaurantId(userId, restaurantId);
     return !existingReview;
   }

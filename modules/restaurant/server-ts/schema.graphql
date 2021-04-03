@@ -3,7 +3,9 @@ type Restaurant {
   canAddReview: Boolean!
   title: String!
   description: String!
+  highestReview: Review!
   imageUrl: String!
+  lowestReview: Review!
   location: String!
   reviews: [Review]
   averageRating: Float!
@@ -48,7 +50,11 @@ type Restaurants {
 
 extend type Query {
   # Restaurants pagination query
-  restaurants(limit: Int, after: Int): Restaurants
+  restaurants(
+    after: Int
+    limit: Int
+    ratingsMinimum: Int
+  ): Restaurants
   # Restaurant
   restaurant(id: Int!): Restaurant
 }

@@ -16,8 +16,9 @@ interface Edges {
 }
 
 interface RestaurantsParams {
-  limit: number;
   after: number;
+  limit: number;
+  ratingsMinimum: number;
 }
 
 interface RestaurantInput {
@@ -54,18 +55,25 @@ export default (pubsub: PubSub) => ({
   Query: {
     async restaurants(
       obj: any,
-      { limit, after }: RestaurantsParams,
+      { after, limit, ratingsMinimum }: RestaurantsParams,
       context: any
     ) {
       const edgesArray: Edges[] = [];
-      const restaurants = await context.Restaurant.restaurantsPagination(
+      const allMatchingRestaurants = await context.Restaurant.getRestaurants(
         limit,
-        after
+        after,
+        ratingsMinimum
       );
-      const total = (await context.Restaurant.getTotal()).count;
+      const restaurantsToReturn = allMatchingRestaurants.slice(
+        after,
+        after + limit
+      );
+      // const total = (await context.Restaurant.getTotal()).count;
+      // console.log('restaurants boo yah', restaurants);
+      const total = allMatchingRestaurants.length;
       const hasNextPage = total > after + limit;
 
-      restaurants.map(
+      restaurantsToReturn.map(
         (restaurant: Restaurant & Identifier, index: number) => {
           edgesArray.push({
             cursor: after + index,
@@ -109,10 +117,17 @@ export default (pubsub: PubSub) => ({
       _: any,
       context: any
     ) {
+      // console.log('stuff', restaurantId, context.req.identity.id);
       return service.customerCanAddReview(
-        restaurantId,
-        context.req.identity.id
+        context.req.identity.id,
+        restaurantId
       );
+    },
+    highestReview({ id }: Identifier, args: any, context: any) {
+      return context.Restaurant.getHighestReviewForRestaurant(id);
+    },
+    lowestReview({ id }: Identifier, args: any, context: any) {
+      return context.Restaurant.getLowestReviewForRestaurant(id);
     },
     reviews: createBatchResolver((sources, args, context) => {
       return context.Restaurant.getReviewsForRestaurantIds(

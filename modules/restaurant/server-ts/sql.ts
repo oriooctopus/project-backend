@@ -6,13 +6,14 @@ import {
   orderedFor,
 } from '@gqlapp/database-server-ts';
 
-const restaurantFields = [
-  'id',
-  'title',
-  'description',
-  'location',
-  'image_url as imageUrl',
+const getRestaurantFields = (precursor = '') => [
+  `${precursor && `${precursor}.`}id`,
+  `${precursor && `${precursor}.`}title`,
+  `${precursor && `${precursor}.`}description`,
+  `${precursor && `${precursor}.`}location`,
+  `${precursor && `${precursor}.`}image_url as imageUrl`,
 ];
+
 const reviewFields = [
   'id',
   'content',
@@ -46,16 +47,55 @@ export interface Identifier {
   id: number;
 }
 export default class RestaurantDAO {
-  public restaurantsPagination(limit: number, after: number) {
+  public getRestaurants(limit: number, after: number, ratingsMinimum: number) {
+    const query = knex
+      .select(...getRestaurantFields('res'))
+      .avg('rev.rating as rating')
+      .from('restaurant as res')
+      .innerJoin('review as rev', 'rev.restaurant_id', 'res.id')
+      .groupBy('res.id')
+      .orderBy('rating', 'desc');
+
+    if (ratingsMinimum) {
+      query.where('rev.rating', '>', ratingsMinimum);
+    }
+
+    return query;
+
+    // console.log('log yoyo', query.toSQL().toNative());
+    // return query;
+    // .orderBy('average_rating', 'desc')
+    // ;
+    // const restaurants = await knex
+    //   .select(...restaurantFields)
+    //   .from('restaurant')
+    //   .orderByRaw('');
+
+  }
+
+  public getHighestReviewForRestaurant(restaurantId: number) {
     return knex
-      .select(...restaurantFields)
-      .from('restaurant')
-      .orderBy('id', 'desc')
-      .limit(limit)
-      .offset(after);
+      .select(...reviewFields)
+      .from('review')
+      .where(decamelizeKeys({ restaurantId }))
+      .orderBy('rating', 'desc')
+      .orderBy('created_at', 'desc')
+      .first();
+  }
+
+  public getLowestReviewForRestaurant(restaurantId: number) {
+    return knex
+      .select(...reviewFields)
+      .from('review')
+      .where(decamelizeKeys({ restaurantId }))
+      .orderBy('rating', 'asc')
+      .orderBy('created_at', 'desc')
+      .first();
   }
 
   public getReviewFromUserAndRestaurantId(userId: number, restaurantId: number) {
+    // console.log('stuff here', restaurantId, userId);
+
     return knex
       .select(...reviewFields)
       .from('review')
@@ -64,6 +104,16 @@ export default class RestaurantDAO {
         user_id: userId,
       })
       .first();
+    // console.log('query', knex
+    //   .select('id')
+    //   .from('review')
+    //   .where({
+    //     restaurant_id: restaurantId,
+    //     user_id: userId,
+    //   })
+    //   .first().toSQL().toNative());
+    // console.log('result hey there', result, !!result);
+    // return result;
   }
 
   public async getReviewsForRestaurantIds(restaurantIds: number[]) {
@@ -72,9 +122,9 @@ export default class RestaurantDAO {
         reviewFields
       )
       .from('review')
-      .whereIn('restaurant_id', restaurantIds);
+      .whereIn('restaurant_id', restaurantIds)
+      .orderBy('created_at', 'desc');
 
-    console.log('result', res);
     return orderedFor(res, restaurantIds, 'restaurantId', false);
   }
 
@@ -86,7 +136,7 @@ export default class RestaurantDAO {
 
   public restaurant(id: number) {
     return knex
-      .select(...restaurantFields)
+      .select(...getRestaurantFields())
       .from('restaurant')
       .where('id', '=', id)
       .first();
