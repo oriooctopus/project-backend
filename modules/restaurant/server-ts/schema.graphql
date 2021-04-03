@@ -1,5 +1,6 @@
 type Restaurant {
   id: Int!
+  canAddReview: Boolean!
   title: String!
   description: String!
   imageUrl: String!

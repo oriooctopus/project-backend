@@ -55,6 +55,17 @@ export default class RestaurantDAO {
       .offset(after);
   }
 
+  public getReviewFromUserAndRestaurantId(userId: number, restaurantId: number) {
+    return knex
+      .select(...reviewFields)
+      .from('review')
+      .where({
+        restaurant_id: restaurantId,
+        user_id: userId,
+      })
+      .first();
+  }
+
   public async getReviewsForRestaurantIds(restaurantIds: number[]) {
     const res = await knex
       .select(
@@ -115,11 +126,12 @@ export default class RestaurantDAO {
       .update({ title, description });
   }
 
-  public addReview({ content, restaurantId, rating }: Review) {
+  public addReview({ content, restaurantId, rating, userId }: Review) {
     return returnId(knex('review')).insert({
       content,
       restaurant_id: restaurantId,
       rating,
+      user_id: userId,
     });
   }
 

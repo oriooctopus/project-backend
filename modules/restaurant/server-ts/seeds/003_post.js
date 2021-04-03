@@ -4,7 +4,7 @@ export async function seed(knex, Promise) {
   await truncateTables(knex, Promise, [
     'restaurant',
     'review',
-    'review_comment',
+    'review_comment'
   ]);
 
   await Promise.all(
@@ -14,7 +14,7 @@ export async function seed(knex, Promise) {
         location: 'Av. Córdoba 1147',
         image_url:
           'https://img.pystatic.com/profile-headers/chabuca-granda-header.jpg',
-        title: `Restaurant title ${ii + 1}`,
+        title: `Restaurant title ${ii + 1}`
       });
 
       const review1 = `I got a burger and an order of empanadas from this place via Uber Eats.
@@ -23,21 +23,21 @@ Not about to try again!`;
       const review2 = `Excelente lugar para tomar un trago con tu grupo de amigos o con tu pareja si no te gusta lo excesivamente romántico. El lugar es cálido, bien atendido y cómodo. Vale la pena sobre todo la parte de sandwiches, muy variados y a buen precio. Tiene posibilidades de convertirse en mi bar de cabecera!`;
 
       await Promise.all(
-        [...Array(4).keys()].map(async (jj) => {
+        [...Array(1).keys()].map(async (jj) => {
           const [reviewId] = await returnId(knex('review')).insert({
             restaurant_id: restaurant[0],
             content: jj % 2 ? review1 : review2,
             rating: jj % 2 ? 5 : 1,
-            user_id: 1,
+            user_id: jj + 1
           });
           // let's leave some blank for testing and speed purposes
           reviewId < 5 &&
             (await returnId(knex('review_comment')).insert({
               review_id: reviewId,
-              comment: 'Thanks for coming!',
+              comment: 'Thanks for coming!'
             }));
-        }),
+        })
       );
-    }),
+    })
   );
 }

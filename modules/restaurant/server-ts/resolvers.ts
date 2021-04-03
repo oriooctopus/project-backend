@@ -3,7 +3,12 @@ import { createBatchResolver } from 'graphql-resolve-batch';
 // interfaces
 import { Restaurant, Review, Identifier } from './sql';
 
+import RestaurantService from './service';
+
 import { timestampToDate } from './utils';
+
+import withAuth from 'graphql-auth';
+import service from './service';
 
 interface Edges {
   cursor: number;
@@ -24,6 +29,7 @@ interface RestaurantInputWithId {
 }
 
 interface ReviewInput {
+  fail: number;
   input: Review;
 }
 
@@ -49,12 +55,12 @@ export default (pubsub: PubSub) => ({
     async restaurants(
       obj: any,
       { limit, after }: RestaurantsParams,
-      context: any,
+      context: any
     ) {
       const edgesArray: Edges[] = [];
       const restaurants = await context.Restaurant.restaurantsPagination(
         limit,
-        after,
+        after
       );
       const total = (await context.Restaurant.getTotal()).count;
       const hasNextPage = total > after + limit;
@@ -63,9 +69,9 @@ export default (pubsub: PubSub) => ({
         (restaurant: Restaurant & Identifier, index: number) => {
           edgesArray.push({
             cursor: after + index,
-            node: restaurant,
+            node: restaurant
           });
-        },
+        }
       );
       const endCursor =
         edgesArray.length > 0
@@ -77,13 +83,13 @@ export default (pubsub: PubSub) => ({
         edges: edgesArray,
         pageInfo: {
           endCursor,
-          hasNextPage,
-        },
+          hasNextPage
+        }
       };
     },
     restaurant(obj: any, { id }: Identifier, context: any) {
       return context.Restaurant.restaurant(id);
-    },
+    }
   },
   Review: {
     reviewComment({ id }: Identifier, _: any, context: any) {
@@ -95,12 +101,22 @@ export default (pubsub: PubSub) => ({
     date(all: Review, _: any, context: any) {
       console.log('all', all);
       return timestampToDate(all.createdAt);
-    },
+    }
   },
   Restaurant: {
+    async canAddReview(
+      { id: restaurantId }: Identifier,
+      _: any,
+      context: any
+    ) {
+      return service.customerCanAddReview(
+        restaurantId,
+        context.req.identity.id
+      );
+    },
     reviews: createBatchResolver((sources, args, context) => {
       return context.Restaurant.getReviewsForRestaurantIds(
-        sources.map(({ id }) => id),
+        sources.map(({ id }) => id)
       );
     }),
     averageRating({ id }: Identifier, _: any, context: any) {
@@ -110,13 +126,13 @@ export default (pubsub: PubSub) => ({
     totalReviews({ id }: Identifier, _: any, context: any) {
       console.log('restaurant id for total reviews', id);
       return context.Restaurant.getTotalReviews(id);
-    },
+    }
   },
   Mutation: {
     async addRestaurant(
       obj: any,
       { input }: RestaurantInput,
-      context: any,
+      context: any
     ) {
       const [id] = await context.Restaurant.addRestaurant(input);
       const restaurant = await context.Restaurant.restaurant(id);
@@ -125,15 +141,15 @@ export default (pubsub: PubSub) => ({
         restaurantsUpdated: {
           mutation: 'CREATED',
           id,
-          node: restaurant,
-        },
+          node: restaurant
+        }
       });
       return restaurant;
     },
     async deleteRestaurant(
       obj: any,
       { id }: Identifier,
-      context: any,
+      context: any
     ) {
       const restaurant = await context.Restaurant.restaurant(id);
       const isDeleted = await context.Restaurant.deleteRestaurant(id);
@@ -143,16 +159,16 @@ export default (pubsub: PubSub) => ({
           restaurantsUpdated: {
             mutation: 'DELETED',
             id,
-            node: restaurant,
-          },
+            node: restaurant
+          }
         });
         // publish for edit restaurant page
         pubsub.publish(RESTAURANT_SUBSCRIPTION, {
           restaurantUpdated: {
             mutation: 'DELETED',
             id,
-            node: restaurant,
-          },
+            node: restaurant
+          }
         });
         return { id: restaurant.id };
       } else {
@@ -162,48 +178,59 @@ export default (pubsub: PubSub) => ({
     async editRestaurant(
       obj: any,
       { input }: RestaurantInputWithId,
-      context: any,
+      context: any
     ) {
       await context.Restaurant.editRestaurant(input);
       const restaurant = await context.Restaurant.restaurant(
-        input.id,
+        input.id
       );
       // publish for restaurant list
       pubsub.publish(RESTAURANTS_SUBSCRIPTION, {
         restaurantsUpdated: {
           mutation: 'UPDATED',
           id: restaurant.id,
-          node: restaurant,
-        },
+          node: restaurant
+        }
       });
       // publish for edit restaurant page
       pubsub.publish(RESTAURANT_SUBSCRIPTION, {
         restaurantUpdated: {
           mutation: 'UPDATED',
           id: restaurant.id,
-          node: restaurant,
-        },
+          node: restaurant
+        }
       });
       return restaurant;
     },
-    async addReview(obj: any, { input }: ReviewInput, context: any) {
-      const [id] = await context.Restaurant.addReview(input);
-      const review = await context.Restaurant.getReview(id);
-      // publish for edit restaurant page
-      pubsub.publish(REVIEW_SUBSCRIPTION, {
-        reviewUpdated: {
-          mutation: 'CREATED',
-          id: review.id,
-          restaurantId: input.restaurantId,
-          node: review,
-        },
-      });
-      return review;
-    },
+    addReview: withAuth(
+      ['review:create:self'],
+      async (obj: any, { input }: ReviewInput, context: any) => {
+        const userId = context.req.identity.id;
+        console.log('userId', userId, 'restaurantId', input);
+        const canAddReview = await RestaurantService.customerCanAddReview(
+          input.restaurantId,
+          userId
+        );
+        console.log('user can add review', canAddReview);
+
+        if (!canAddReview) {
+          throw new Error(
+            'User has already added a review to this restaurant'
+          );
+        }
+
+        const [id] = await context.Restaurant.addReview({
+          ...input,
+          userId
+        });
+        const review = await context.Restaurant.getReview(id);
+        return review;
+      }
+    ),
     async deleteReview(
       obj: any,
       { input: { id, restaurantId } }: ReviewInputWithId,
-      context: any,
+      context: any
     ) {
       await context.Restaurant.deleteReview(id);
       // publish for edit restaurant page
@@ -212,15 +239,15 @@ export default (pubsub: PubSub) => ({
           mutation: 'DELETED',
           id,
           restaurantId,
-          node: null,
-        },
+          node: null
+        }
       });
       return { id };
     },
     async editReview(
       obj: any,
       { input }: ReviewInputWithId,
-      context: any,
+      context: any
     ) {
       await context.Restaurant.editReview(input);
       const review = await context.Restaurant.getReview(input.id);
@@ -230,19 +257,19 @@ export default (pubsub: PubSub) => ({
           mutation: 'UPDATED',
           id: input.id,
           restaurantId: input.restaurantId,
-          node: review,
-        },
+          node: review
+        }
       });
       return review;
     },
     async addReviewComment(
       obj: any,
       { input }: ReviewCommentInput,
-      context: any,
+      context: any
     ) {
       const [id] = await context.Restaurant.addReviewComment(input);
       const reviewComment = await context.Restaurant.getReviewComment(
-        id,
+        id
       );
       // publish for edit restaurant page
       pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
@@ -250,15 +277,15 @@ export default (pubsub: PubSub) => ({
           mutation: 'CREATED',
           id: reviewComment.id,
           restaurantId: input.restaurantId,
-          node: reviewComment,
-        },
+          node: reviewComment
+        }
       });
       return reviewComment;
     },
     async deleteReviewComment(
       obj: any,
       { input: { id, restaurantId } }: ReviewCommentInputWithId,
-      context: any,
+      context: any
     ) {
       await context.Restaurant.deleteReviewComment(id);
       // publish for edit restaurant page
@@ -267,19 +294,19 @@ export default (pubsub: PubSub) => ({
           mutation: 'DELETED',
           id,
           restaurantId,
-          node: null,
-        },
+          node: null
+        }
       });
       return { id };
     },
     async editReviewComment(
       obj: any,
       { input }: ReviewCommentInputWithId,
-      context: any,
+      context: any
     ) {
       await context.Restaurant.editReviewComment(input);
       const reviewComment = await context.Restaurant.getReviewComment(
-        input.id,
+        input.id
       );
       // publish for edit restaurant page
       pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
@@ -287,11 +314,11 @@ export default (pubsub: PubSub) => ({
           mutation: 'UPDATED',
           id: input.id,
           restaurantId: input.restaurantId,
-          node: reviewComment,
-        },
+          node: reviewComment
+        }
       });
       return reviewComment;
-    },
+    }
   },
   Subscription: {
     restaurantUpdated: {
@@ -299,16 +326,16 @@ export default (pubsub: PubSub) => ({
         () => pubsub.asyncIterator(RESTAURANT_SUBSCRIPTION),
         (payload, variables) => {
           return payload.restaurantUpdated.id === variables.id;
-        },
-      ),
+        }
+      )
     },
     restaurantsUpdated: {
       subscribe: withFilter(
         () => pubsub.asyncIterator(RESTAURANTS_SUBSCRIPTION),
         (payload, variables) => {
           return variables.endCursor <= payload.restaurantsUpdated.id;
-        },
-      ),
+        }
+      )
     },
     reviewUpdated: {
       subscribe: withFilter(
@@ -318,8 +345,8 @@ export default (pubsub: PubSub) => ({
             payload.reviewUpdated.restaurantId ===
             variables.restaurantId
           );
-        },
-      ),
+        }
+      )
     },
     reviewCommentUpdated: {
       subscribe: withFilter(
@@ -329,8 +356,8 @@ export default (pubsub: PubSub) => ({
             payload.reviewCommentUpdated.restaurantId ===
             variables.restaurantId
           );
-        },
-      ),
-    },
-  },
+        }
+      )
+    }
+  }
 });

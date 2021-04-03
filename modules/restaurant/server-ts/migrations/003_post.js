@@ -16,12 +16,14 @@ exports.up = function(knex, Promise) {
           .unsigned()
           .references('id')
           .inTable('restaurant')
+          .notNull()
           .onDelete('CASCADE');
         table
           .integer('user_id')
           .unsigned()
           .references('id')
           .inTable('user_profile')
+          .notNull()
           .onDelete('CASCADE');
         table.integer('rating');
         table.string('content');
@@ -38,7 +40,7 @@ exports.up = function(knex, Promise) {
           .onDelete('CASCADE');
         table.string('comment');
         table.timestamps(false, true);
-      }),
+      })
   ]);
 };
 
@@ -46,6 +48,6 @@ exports.down = function(knex, Promise) {
   return Promise.all([
     knex.schema.dropTable('review_comment'),
     knex.schema.dropTable('review'),
-    knex.schema.dropTable('restaurant'),
+    knex.schema.dropTable('restaurant')
   ]);
 };
