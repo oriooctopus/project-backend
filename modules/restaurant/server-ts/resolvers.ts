@@ -18,6 +18,8 @@ interface Edges {
 interface RestaurantsParams {
   after: number;
   limit: number;
+  onlyUnreplied: boolean;
+  ownedByUser: boolean;
   ratingsMinimum: number;
 }
 
@@ -55,14 +57,20 @@ export default (pubsub: PubSub) => ({
   Query: {
     async restaurants(
       obj: any,
-      { after, limit, ratingsMinimum }: RestaurantsParams,
+      {
+        after,
+        limit,
+        ownedByUser,
+        ratingsMinimum
+      }: RestaurantsParams,
       context: any
     ) {
       const edgesArray: Edges[] = [];
       const allMatchingRestaurants = await context.Restaurant.getRestaurants(
         limit,
         after,
-        ratingsMinimum
+        ratingsMinimum,
+        ownedByUser && context.req.identity.id
       );
       const restaurantsToReturn = allMatchingRestaurants.slice(
         after,
@@ -109,9 +117,8 @@ export default (pubsub: PubSub) => ({
     userProfile({ userId }: Review, _: any, context: any) {
       return context.User.getUserProfile(userId);
     },
-    date(all: Review, _: any, context: any) {
-      console.log('all', all);
-      return timestampToDate(all.createdAt);
+    date({ createdAt }: Review) {
+      return timestampToDate(createdAt);
     },
     restaurant({ restaurantId }: Review, _: any, context: any) {
       return context.Restaurant.restaurant(restaurantId);

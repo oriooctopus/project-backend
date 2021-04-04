@@ -3,12 +3,12 @@ type Restaurant {
   canAddReview: Boolean!
   title: String!
   description: String!
-  highestReview: Review!
+  highestReview: Review
   imageUrl: String!
-  lowestReview: Review!
+  lowestReview: Review
   location: String!
   reviews: [Review]
-  averageRating: Float!
+  averageRating: Float
   totalReviews: Int!
 }
 

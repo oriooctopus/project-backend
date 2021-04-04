@@ -51,7 +51,8 @@ export default class RestaurantDAO {
   public getRestaurants(
     limit: number,
     after: number,
-    ratingsMinimum: number
+    ratingsMinimum: number,
+    userId: number
   ) {
     const query = knex
       .select(...getRestaurantFields('res'))
@@ -60,6 +61,10 @@ export default class RestaurantDAO {
       .innerJoin('review as rev', 'rev.restaurant_id', 'res.id')
       .groupBy('res.id')
       .orderBy('rating', 'desc');
+
+    if (userId) {
+      query.where('res.user_id', '=', userId);
+    }
 
     if (ratingsMinimum) {
       query.where('rev.rating', '>', ratingsMinimum);
@@ -130,7 +135,9 @@ export default class RestaurantDAO {
       .whereIn('restaurant_id', restaurantIds)
       .orderBy('created_at', 'desc');
 
-    return orderedFor(res, restaurantIds, 'restaurantId', false);
+    return (
+      orderedFor(res, restaurantIds, 'restaurantId', false) || []
+    );
   }
 
   public getTotal() {
@@ -148,7 +155,9 @@ export default class RestaurantDAO {
   }
 
   public addRestaurant(params: Restaurant) {
-    return returnId(knex('restaurant')).insert(decamelizeKeys(params));
+    return returnId(knex('restaurant')).insert(
+      decamelizeKeys(params)
+    );
   }
 
   public async deleteRestaurant(id: number) {
