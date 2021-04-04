@@ -15,7 +15,7 @@ export async function seed(knex, Promise) {
         image_url:
           'https://img.pystatic.com/profile-headers/chabuca-granda-header.jpg',
         title: `Restaurant title ${ii + 1}`,
-        user_id: 2
+        user_profile_id: 2
       });
 
       const review1 = `I got a burger and an order of empanadas from this place via Uber Eats.
@@ -29,7 +29,7 @@ Not about to try again!`;
             restaurant_id: restaurant[0],
             content: jj % 2 ? review1 : review2,
             rating: jj % 2 ? 5 : 1,
-            user_id: jj + 1
+            user_profile_id: jj + 1
           });
           // let's leave some blank for testing and speed purposes
           reviewId < 5 &&

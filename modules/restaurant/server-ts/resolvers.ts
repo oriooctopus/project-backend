@@ -114,8 +114,8 @@ export default (pubsub: PubSub) => ({
     reviewComment({ id }: Identifier, _: any, context: any) {
       return context.Restaurant.getReviewCommentFromReview(id);
     },
-    userProfile({ userId }: Review, _: any, context: any) {
-      return context.User.getUserProfile(userId);
+    userProfile({ userProfileId }: Review, _: any, context: any) {
+      return context.User.getUserProfile(userProfileId);
     },
     date({ createdAt }: Review) {
       return timestampToDate(createdAt);
@@ -193,10 +193,10 @@ export default (pubsub: PubSub) => ({
     addReview: withAuth(
       ['review:create:self'],
       async (obj: any, { input }: ReviewInput, context: any) => {
-        const userId = context.req.identity.id;
+        const userProfileId = context.req.identity.id;
         const canAddReview = await RestaurantService.customerCanAddReview(
           input.restaurantId,
-          userId
+          userProfileId
         );
 
         if (!canAddReview) {
@@ -207,7 +207,7 @@ export default (pubsub: PubSub) => ({
 
         const [id] = await context.Restaurant.addReview({
           ...input,
-          userId
+          userProfileId
         });
         const review = await context.Restaurant.getReview(id);
         return review;

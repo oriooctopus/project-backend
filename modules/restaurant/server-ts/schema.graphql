@@ -19,7 +19,7 @@ type Review {
   date: String!
   rating: Int!
   restaurant: Restaurant
-  userId: Int!
+  userProfileId: Int!
   restaurantId: Int!
   reviewComment: ReviewComment
   userProfile: UserProfile!
@@ -75,7 +75,7 @@ input AddRestaurantInput {
   description: String!
   title: String!
   imageUrl: String!
-  userId: Int!
+  userProfileId: Int!
   location: String!
 }
 
@@ -84,7 +84,7 @@ input EditRestaurantInput {
   id: Int!
   title: String!
   imageUrl: String!
-  userId: Int!
+  userProfileId: Int!
   location: String!
 }
 

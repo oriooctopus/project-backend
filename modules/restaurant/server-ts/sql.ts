@@ -52,7 +52,7 @@ export default class RestaurantDAO {
     limit: number,
     after: number,
     ratingsMinimum: number,
-    userId: number
+    userProfileId: number
   ) {
     const query = knex
       .select(...getRestaurantFields('res'))
@@ -62,8 +62,8 @@ export default class RestaurantDAO {
       .groupBy('res.id')
       .orderBy('rating', 'desc');
 
-    if (userId) {
-      query.where('res.user_id', '=', userId);
+    if (userProfileId) {
+      query.where('res.user_profiled_id', '=', userProfileId);
     }
 
     if (ratingsMinimum) {
@@ -103,7 +103,7 @@ export default class RestaurantDAO {
   }
 
   public getReviewFromUserAndRestaurantId(
-    userId: number,
+    userProfileId: number,
     restaurantId: number
   ) {
     // console.log('stuff here', restaurantId, userId);
@@ -113,7 +113,7 @@ export default class RestaurantDAO {
       .from('review')
       .where({
         restaurant_id: restaurantId,
-        user_id: userId
+        user_profile_id: userProfileId
       })
       .first();
     // console.log('query', knex
