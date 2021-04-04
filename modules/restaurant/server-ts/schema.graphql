@@ -18,6 +18,7 @@ type Review {
   content: String!
   date: String!
   rating: Int!
+  restaurant: Restaurant
   userId: Int!
   restaurantId: Int!
   reviewComment: ReviewComment
@@ -49,14 +50,13 @@ type Restaurants {
 }
 
 extend type Query {
-  # Restaurants pagination query
   restaurants(
     after: Int
     limit: Int
     ratingsMinimum: Int
   ): Restaurants
-  # Restaurant
   restaurant(id: Int!): Restaurant
+  review(id: Int!): Review
 }
 
 extend type Mutation {
@@ -64,10 +64,10 @@ extend type Mutation {
   deleteRestaurant(id: Int!): Restaurant
   editRestaurant(input: EditRestaurantInput!): Restaurant
   addReview(input: AddReviewInput!): Review
-  deleteReview(input: DeleteReviewInput!): Review
+  deleteReview(id: Int!): Review
   editReview(input: EditReviewInput!): Review
   addReviewComment(input: AddReviewCommentInput!): ReviewComment
-  deleteReviewComment(input: DeleteReviewCommentInput!): ReviewComment
+  deleteReviewComment(id: Int!): ReviewComment
   editReviewComment(input: EditReviewCommentInput!): ReviewComment
 }
 
@@ -91,36 +91,21 @@ input AddReviewInput {
   restaurantId: Int!
 }
 
-input DeleteReviewInput {
-  id: Int!
-  # Needed for reviewUpdated Subscription filter
-  restaurantId: Int!
-}
-
 input EditReviewInput {
   id: Int!
   content: String!
-  # Needed for reviewUpdated Subscription filter
-  restaurantId: Int!
+  rating: Int!
 }
 
 input AddReviewCommentInput {
-  content: String!
+  comment: String!
   # Needed for reviewCommentUpdated Subscription filter
-  restaurantId: Int!
-}
-
-input DeleteReviewCommentInput {
-  id: Int!
-  # Needed for reviewCommentUpdated Subscription filter
-  restaurantId: Int!
+  reviewId: Int!
 }
 
 input EditReviewCommentInput {
   id: Int!
-  content: String!
-  # Needed for reviewCommentUpdated Subscription filter
-  restaurantId: Int!
+  comment: String!
 }
 
 extend type Subscription {

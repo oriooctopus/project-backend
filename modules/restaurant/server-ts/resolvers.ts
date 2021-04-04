@@ -1,7 +1,7 @@
 import { PubSub, withFilter } from 'graphql-subscriptions';
 import { createBatchResolver } from 'graphql-resolve-batch';
 // interfaces
-import { Restaurant, Review, Identifier } from './sql';
+import { Restaurant, Review, ReviewComment, Identifier } from './sql';
 
 import RestaurantService from './service';
 
@@ -97,6 +97,9 @@ export default (pubsub: PubSub) => ({
     },
     restaurant(obj: any, { id }: Identifier, context: any) {
       return context.Restaurant.restaurant(id);
+    },
+    review(obj: any, { id }: Identifier, context: any) {
+      return context.Restaurant.getReview(id);
     }
   },
   Review: {
@@ -109,6 +112,9 @@ export default (pubsub: PubSub) => ({
     date(all: Review, _: any, context: any) {
       console.log('all', all);
       return timestampToDate(all.createdAt);
+    },
+    restaurant({ restaurantId }: Review, _: any, context: any) {
+      return context.Restaurant.restaurant(restaurantId);
     }
   },
   Restaurant: {
@@ -199,22 +205,7 @@ export default (pubsub: PubSub) => ({
       const restaurant = await context.Restaurant.restaurant(
         input.id
       );
-      // publish for restaurant list
-      pubsub.publish(RESTAURANTS_SUBSCRIPTION, {
-        restaurantsUpdated: {
-          mutation: 'UPDATED',
-          id: restaurant.id,
-          node: restaurant
-        }
-      });
-      // publish for edit restaurant page
-      pubsub.publish(RESTAURANT_SUBSCRIPTION, {
-        restaurantUpdated: {
-          mutation: 'UPDATED',
-          id: restaurant.id,
-          node: restaurant
-        }
-      });
+
       return restaurant;
     },
     addReview: withAuth(
@@ -242,21 +233,11 @@ export default (pubsub: PubSub) => ({
         return review;
       }
     ),
-    async deleteReview(
-      obj: any,
-      { input: { id, restaurantId } }: ReviewInputWithId,
-      context: any
-    ) {
-      await context.Restaurant.deleteReview(id);
-      // publish for edit restaurant page
-      pubsub.publish(REVIEW_SUBSCRIPTION, {
-        reviewUpdated: {
-          mutation: 'DELETED',
-          id,
-          restaurantId,
-          node: null
-        }
-      });
+    async deleteReview(obj: any, { id }: Identitifer, context: any) {
+      const result = await context.Restaurant.deleteReview(id);
+      if (result === 0) {
+        throw new Error('review is already deleted');
+      }
       return { id };
     },
     async editReview(
@@ -266,15 +247,6 @@ export default (pubsub: PubSub) => ({
     ) {
       await context.Restaurant.editReview(input);
       const review = await context.Restaurant.getReview(input.id);
-      // publish for edit restaurant page
-      pubsub.publish(REVIEW_SUBSCRIPTION, {
-        reviewUpdated: {
-          mutation: 'UPDATED',
-          id: input.id,
-          restaurantId: input.restaurantId,
-          node: review
-        }
-      });
       return review;
     },
     async addReviewComment(
@@ -286,32 +258,17 @@ export default (pubsub: PubSub) => ({
       const reviewComment = await context.Restaurant.getReviewComment(
         id
       );
-      // publish for edit restaurant page
-      pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
-        reviewCommentUpdated: {
-          mutation: 'CREATED',
-          id: reviewComment.id,
-          restaurantId: input.restaurantId,
-          node: reviewComment
-        }
-      });
       return reviewComment;
     },
     async deleteReviewComment(
       obj: any,
-      { input: { id, restaurantId } }: ReviewCommentInputWithId,
+      { id }: Identifier,
       context: any
     ) {
-      await context.Restaurant.deleteReviewComment(id);
-      // publish for edit restaurant page
-      pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
-        reviewCommentUpdated: {
-          mutation: 'DELETED',
-          id,
-          restaurantId,
-          node: null
-        }
-      });
+      const result = await context.Restaurant.deleteReviewComment(id);
+      if (result === 0) {
+        throw new Error('review comment is already deleted');
+      }
       return { id };
     },
     async editReviewComment(
@@ -323,15 +280,6 @@ export default (pubsub: PubSub) => ({
       const reviewComment = await context.Restaurant.getReviewComment(
         input.id
       );
-      // publish for edit restaurant page
-      pubsub.publish(REVIEW_COMMENT_SUBSCRIPTION, {
-        reviewCommentUpdated: {
-          mutation: 'UPDATED',
-          id: input.id,
-          restaurantId: input.restaurantId,
-          node: reviewComment
-        }
-      });
       return reviewComment;
     }
   },

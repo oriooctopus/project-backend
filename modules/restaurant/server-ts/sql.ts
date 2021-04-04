@@ -208,6 +208,32 @@ export default class RestaurantDAO {
       });
   }
 
+  public getReviewComment(id: number) {
+    return knex
+      .select('*')
+      .from('review_comment')
+      .where('id', '=', id)
+      .first();
+  }
+
+  public addReviewComment(params: ReviewComment) {
+    return returnId(knex('review_comment')).insert(decamelizeKeys(params));
+  }
+
+  public deleteReviewComment(id: number) {
+    return knex('review_comment')
+      .where('id', '=', id)
+      .del();
+  }
+
+  public editReviewComment({ id, comment }: ReviewComment & Identifier) {
+    return knex('review_comment')
+      .where('id', '=', id)
+      .update({
+        comment
+      });
+  }
+
   public getReviewCommentFromReview(reviewId: number) {
     return knex('review_comment')
       .where('review_id', '=', reviewId)
