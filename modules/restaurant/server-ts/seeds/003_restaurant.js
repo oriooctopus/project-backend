@@ -14,7 +14,8 @@ export async function seed(knex, Promise) {
         location: 'Av. Córdoba 1147',
         image_url:
           'https://img.pystatic.com/profile-headers/chabuca-granda-header.jpg',
-        title: `Restaurant title ${ii + 1}`
+        title: `Restaurant title ${ii + 1}`,
+        user_id: 2
       });
 
       const review1 = `I got a burger and an order of empanadas from this place via Uber Eats.

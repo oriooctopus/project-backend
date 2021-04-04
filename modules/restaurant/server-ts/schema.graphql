@@ -71,17 +71,21 @@ extend type Mutation {
   editReviewComment(input: EditReviewCommentInput!): ReviewComment
 }
 
-# Input for addRestaurant Mutation
 input AddRestaurantInput {
+  description: String!
   title: String!
-  content: String!
+  imageUrl: String!
+  userId: Int!
+  location: String!
 }
 
-# Input for editRestaurant Mutation
 input EditRestaurantInput {
+  description: String!
   id: Int!
   title: String!
-  content: String!
+  imageUrl: String!
+  userId: Int!
+  location: String!
 }
 
 input AddReviewInput {

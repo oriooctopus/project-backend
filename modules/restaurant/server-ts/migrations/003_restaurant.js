@@ -3,6 +3,13 @@ exports.up = function(knex, Promise) {
     knex.schema
       .createTable('restaurant', (table) => {
         table.increments();
+        table
+          .integer('user_id')
+          .unsigned()
+          .references('id')
+          .inTable('user_profile')
+          .notNull()
+          .onDelete('CASCADE');
         table.string('title');
         table.string('description');
         table.string('location');

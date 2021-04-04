@@ -157,14 +157,6 @@ export default (pubsub: PubSub) => ({
     ) {
       const [id] = await context.Restaurant.addRestaurant(input);
       const restaurant = await context.Restaurant.restaurant(id);
-      // publish for restaurant list
-      pubsub.publish(RESTAURANTS_SUBSCRIPTION, {
-        restaurantsUpdated: {
-          mutation: 'CREATED',
-          id,
-          node: restaurant
-        }
-      });
       return restaurant;
     },
     async deleteRestaurant(
@@ -172,28 +164,11 @@ export default (pubsub: PubSub) => ({
       { id }: Identifier,
       context: any
     ) {
-      const restaurant = await context.Restaurant.restaurant(id);
       const isDeleted = await context.Restaurant.deleteRestaurant(id);
-      if (isDeleted) {
-        // publish for restaurant list
-        pubsub.publish(RESTAURANTS_SUBSCRIPTION, {
-          restaurantsUpdated: {
-            mutation: 'DELETED',
-            id,
-            node: restaurant
-          }
-        });
-        // publish for edit restaurant page
-        pubsub.publish(RESTAURANT_SUBSCRIPTION, {
-          restaurantUpdated: {
-            mutation: 'DELETED',
-            id,
-            node: restaurant
-          }
-        });
-        return { id: restaurant.id };
+      if (!isDeleted) {
+        throw new Error('Restaurant was not deleted');
       } else {
-        return { id: null };
+        return { id };
       }
     },
     async editRestaurant(
@@ -212,12 +187,10 @@ export default (pubsub: PubSub) => ({
       ['review:create:self'],
       async (obj: any, { input }: ReviewInput, context: any) => {
         const userId = context.req.identity.id;
-        console.log('userId', userId, 'restaurantId', input);
         const canAddReview = await RestaurantService.customerCanAddReview(
           input.restaurantId,
           userId
         );
-        console.log('user can add review', canAddReview);
 
         if (!canAddReview) {
           throw new Error(
