@@ -12,7 +12,17 @@ class User {
         .select('id', 'first_name', 'last_name')
         .from('user_profile')
         .where('id', '=', id)
-        .first(),
+        .first()
+    );
+  }
+
+  async getUserProfileByUser(userId) {
+    return camelizeKeys(
+      await knex
+        .select('id', 'first_name', 'last_name')
+        .from('user_profile')
+        .where('user_id', '=', userId)
+        .first()
     );
   }
 
@@ -34,7 +44,7 @@ class User {
         'gha.gh_id',
         'gha.display_name AS ghDisplayName',
         'ga.google_id',
-        'ga.display_name AS googleDisplayName',
+        'ga.display_name AS googleDisplayName'
       )
       .from('user AS u')
       .leftJoin('user_profile AS up', 'up.user_id', 'u.id')
@@ -74,26 +84,26 @@ class User {
           this.where(
             knex.raw('LOWER(??) LIKE LOWER(?)', [
               'username',
-              `%${filter.searchText}%`,
-            ]),
+              `%${filter.searchText}%`
+            ])
           )
             .orWhere(
               knex.raw('LOWER(??) LIKE LOWER(?)', [
                 'email',
-                `%${filter.searchText}%`,
-              ]),
+                `%${filter.searchText}%`
+              ])
             )
             .orWhere(
               knex.raw('LOWER(??) LIKE LOWER(?)', [
                 'first_name',
-                `%${filter.searchText}%`,
-              ]),
+                `%${filter.searchText}%`
+              ])
             )
             .orWhere(
               knex.raw('LOWER(??) LIKE LOWER(?)', [
                 'last_name',
-                `%${filter.searchText}%`,
-              ]),
+                `%${filter.searchText}%`
+              ])
             );
         });
       }
@@ -121,7 +131,7 @@ class User {
           'gha.gh_id',
           'gha.display_name AS ghDisplayName',
           'ga.google_id',
-          'ga.display_name AS googleDisplayName',
+          'ga.display_name AS googleDisplayName'
         )
         .from('user AS u')
         .leftJoin('user_profile AS up', 'up.user_id', 'u.id')
@@ -131,7 +141,7 @@ class User {
         .leftJoin('auth_github AS gha', 'gha.user_id', 'u.id')
         .leftJoin('auth_linkedin AS lna', 'lna.user_id', 'u.id')
         .where('u.id', '=', id)
-        .first(),
+        .first()
     );
   }
 
@@ -146,12 +156,12 @@ class User {
           'u.is_active',
           'u.email',
           'up.first_name',
-          'up.last_name',
+          'up.last_name'
         )
         .from('user AS u')
         .where('u.id', '=', id)
         .leftJoin('user_profile AS up', 'up.user_id', 'u.id')
-        .first(),
+        .first()
     );
   }
 
@@ -165,19 +175,19 @@ class User {
           'u.is_active',
           'ca.serial',
           'up.first_name',
-          'up.last_name',
+          'up.last_name'
         )
         .from('user AS u')
         .leftJoin('auth_certificate AS ca', 'ca.user_id', 'u.id')
         .leftJoin('user_profile AS up', 'up.user_id', 'u.id')
         .where('ca.serial', '=', serial)
-        .first(),
+        .first()
     );
   }
 
   register(
     { username, email, role = 'user', isActive },
-    passwordHash,
+    passwordHash
   ) {
     return knex('user')
       .returning('id')
@@ -187,8 +197,8 @@ class User {
           email,
           role,
           passwordHash,
-          isActive,
-        }),
+          isActive
+        })
       );
   }
 
@@ -196,7 +206,7 @@ class User {
     return returnId(knex('auth_facebook')).insert({
       fb_id: id,
       display_name: displayName,
-      user_id: userId,
+      user_id: userId
     });
   }
 
@@ -204,7 +214,7 @@ class User {
     return returnId(knex('auth_github')).insert({
       gh_id: id,
       display_name: displayName,
-      user_id: userId,
+      user_id: userId
     });
   }
 
@@ -212,7 +222,7 @@ class User {
     return returnId(knex('auth_google')).insert({
       google_id: id,
       display_name: displayName,
-      user_id: userId,
+      user_id: userId
     });
   }
 
@@ -220,7 +230,7 @@ class User {
     return returnId(knex('auth_linkedin')).insert({
       ln_id: id,
       display_name: displayName,
-      user_id: userId,
+      user_id: userId
     });
   }
 
@@ -234,8 +244,8 @@ class User {
           username,
           role,
           isActive,
-          ...localAuthInput,
-        }),
+          ...localAuthInput
+        })
       )
       .where({ id });
   }
@@ -255,7 +265,7 @@ class User {
     } else {
       return returnId(knex('user_profile')).insert({
         ...decamelizeKeys(profile),
-        user_id: id,
+        user_id: id
       });
     }
   }
@@ -263,8 +273,8 @@ class User {
   async editAuthCertificate({
     id,
     auth: {
-      certificate: { serial },
-    },
+      certificate: { serial }
+    }
   }) {
     const userProfile = await knex
       .select('id')
@@ -279,7 +289,7 @@ class User {
     } else {
       return returnId(knex('auth_certificate')).insert({
         serial,
-        user_id: id,
+        user_id: id
       });
     }
   }
@@ -315,12 +325,12 @@ class User {
           'u.is_active',
           'u.email',
           'up.first_name',
-          'up.last_name',
+          'up.last_name'
         )
         .from('user AS u')
         .leftJoin('user_profile AS up', 'up.user_id', 'u.id')
         .where({ email })
-        .first(),
+        .first()
     );
   }
 
@@ -336,14 +346,14 @@ class User {
           'u.email',
           'u.password_hash',
           'up.first_name',
-          'up.last_name',
+          'up.last_name'
         )
         .from('user AS u')
         .leftJoin('auth_facebook AS fa', 'fa.user_id', 'u.id')
         .leftJoin('user_profile AS up', 'up.user_id', 'u.id')
         .where('fa.fb_id', '=', id)
         .orWhere('u.email', '=', email)
-        .first(),
+        .first()
     );
   }
 
@@ -359,14 +369,14 @@ class User {
           'u.email',
           'u.password_hash',
           'up.first_name',
-          'up.last_name',
+          'up.last_name'
         )
         .from('user AS u')
         .leftJoin('auth_linkedin AS lna', 'lna.user_id', 'u.id')
         .leftJoin('user_profile AS up', 'up.user_id', 'u.id')
         .where('lna.ln_id', '=', id)
         .orWhere('u.email', '=', email)
-        .first(),
+        .first()
     );
   }
 
@@ -382,14 +392,14 @@ class User {
           'u.email',
           'u.password_hash',
           'up.first_name',
-          'up.last_name',
+          'up.last_name'
         )
         .from('user AS u')
         .leftJoin('auth_github AS gha', 'gha.user_id', 'u.id')
         .leftJoin('user_profile AS up', 'up.user_id', 'u.id')
         .where('gha.gh_id', '=', id)
         .orWhere('u.email', '=', email)
-        .first(),
+        .first()
     );
   }
 
@@ -405,14 +415,14 @@ class User {
           'u.email',
           'u.password_hash',
           'up.first_name',
-          'up.last_name',
+          'up.last_name'
         )
         .from('user AS u')
         .leftJoin('auth_google AS ga', 'ga.user_id', 'u.id')
         .leftJoin('user_profile AS up', 'up.user_id', 'u.id')
         .where('ga.google_id', '=', id)
         .orWhere('u.email', '=', email)
-        .first(),
+        .first()
     );
   }
 
@@ -426,12 +436,12 @@ class User {
           'u.is_active',
           'u.email',
           'up.first_name',
-          'up.last_name',
+          'up.last_name'
         )
         .from('user AS u')
         .where('u.username', '=', username)
         .leftJoin('user_profile AS up', 'up.user_id', 'u.id')
-        .first(),
+        .first()
     );
   }
 
@@ -446,13 +456,13 @@ class User {
           'u.is_active',
           'u.email',
           'up.first_name',
-          'up.last_name',
+          'up.last_name'
         )
         .from('user AS u')
         .where('u.username', '=', usernameOrEmail)
         .orWhere('u.email', '=', usernameOrEmail)
         .leftJoin('user_profile AS up', 'up.user_id', 'u.id')
-        .first(),
+        .first()
     );
   }
 }

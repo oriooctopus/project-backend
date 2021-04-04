@@ -4,10 +4,10 @@ exports.up = function(knex, Promise) {
       .createTable('restaurant', (table) => {
         table.increments();
         table
-          .integer('user_profile_id')
+          .integer('user_id')
           .unsigned()
           .references('id')
-          .inTable('user_profile')
+          .inTable('user')
           .notNull()
           .onDelete('CASCADE');
         table.string('title');
@@ -26,10 +26,10 @@ exports.up = function(knex, Promise) {
           .notNull()
           .onDelete('CASCADE');
         table
-          .integer('user_profile_id')
+          .integer('user_id')
           .unsigned()
           .references('id')
-          .inTable('user_profile')
+          .inTable('user')
           .notNull()
           .onDelete('CASCADE');
         table.integer('rating');
