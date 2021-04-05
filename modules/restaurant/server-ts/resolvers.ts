@@ -67,7 +67,7 @@ export default (pubsub: PubSub) => ({
   Query: {
     async getUnansweredReviewsForOwner(
       obj: any,
-      { after, limit }: UnansweredReviewsParams,
+      { after = 0, limit = 10 }: UnansweredReviewsParams,
       context: any
     ) {
       const edgesArray: UnansweredReviewsEdges[] = [];
@@ -103,47 +103,58 @@ export default (pubsub: PubSub) => ({
         }
       };
     },
-    async restaurants(
-      obj: any,
-      { after, limit, ownedByUser, ratingsMinimum }: RestaurantsParams,
-      context: any
-    ) {
-      const edgesArray: RestaurantsEdges[] = [];
-      const allMatchingRestaurants = await context.Restaurant.getRestaurants(
-        ratingsMinimum,
-        ownedByUser && context.req.identity.id
-      );
-      const restaurantsToReturn = allMatchingRestaurants.slice(
-        after,
-        after + limit
-      );
-      // const total = (await context.Restaurant.getTotal()).count;
-      // console.log('restaurants boo yah', restaurants);
-      const total = allMatchingRestaurants.length;
-      const hasNextPage = total > after + limit;
+    restaurants: withAuth(
+      ['basic'],
+      async (
+        obj: any,
+        {
+          after = 0,
+          limit = 10,
+          ownedByUser,
+          ratingsMinimum
+        }: RestaurantsParams,
+        { Restaurant, req: { identity } }
+      ) => {
+        let userFilter =
+          ownedByUser || identity.role === 'owner'
+            ? identity.id
+            : null;
 
-      restaurantsToReturn.map(
-        (restaurant: Restaurant & Identifier, index: number) => {
-          edgesArray.push({
-            cursor: after + index,
-            node: restaurant
-          });
-        }
-      );
-      const endCursor =
-        edgesArray.length > 0
-          ? edgesArray[edgesArray.length - 1].cursor
-          : 0;
+        const edgesArray: RestaurantsEdges[] = [];
+        const allMatchingRestaurants = await Restaurant.getRestaurants(
+          ratingsMinimum,
+          userFilter
+        );
+        const restaurantsToReturn = allMatchingRestaurants.slice(
+          after,
+          after + limit
+        );
+        const total = allMatchingRestaurants.length;
+        const hasNextPage = total > after + limit;
 
-      return {
-        totalCount: total,
-        edges: edgesArray,
-        pageInfo: {
-          endCursor,
-          hasNextPage
-        }
-      };
-    },
+        restaurantsToReturn.map(
+          (restaurant: Restaurant & Identifier, index: number) => {
+            edgesArray.push({
+              cursor: after + index,
+              node: restaurant
+            });
+          }
+        );
+        const endCursor =
+          edgesArray.length > 0
+            ? edgesArray[edgesArray.length - 1].cursor
+            : 0;
+
+        return {
+          totalCount: total,
+          edges: edgesArray,
+          pageInfo: {
+            endCursor,
+            hasNextPage
+          }
+        };
+      }
+    ),
     restaurant(obj: any, { id }: Identifier, context: any) {
       return context.Restaurant.restaurant(id);
     },
@@ -156,7 +167,7 @@ export default (pubsub: PubSub) => ({
   },
   Review: {
     async canAddComment({ id }: Identifier, _: any, context: any) {
-      if (!context.req.identity.role !== 'owner') {
+      if (context.req.identity.role !== 'owner') {
         return false;
       }
 

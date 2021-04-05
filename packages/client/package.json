@@ -6,9 +6,9 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack",
     "clean": "rimraf build .tmp",
-    "tests": "jest",
-    "tests:watch": "jest --watch",
-    "test": "yarn tests && yarn lint",
+    "tests": "",
+    "tests:watch": "",
+    "test": "",
     "eslint": "eslint --fix --ext js --ext jsx --ext json .",
     "tslint": "tslint --fix -p tsconfig.json -c ../../tslint.json",
     "lint": "yarn eslint && yarn tslint",
