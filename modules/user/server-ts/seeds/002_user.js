@@ -43,4 +43,17 @@ export async function seed(knex, Promise) {
     first_name: 'oliver',
     last_name: 'ullman'
   });
+
+  await returnId(knex('user')).insert({
+    username: 'owner',
+    email: 'owner@example.com',
+    password_hash: await bcrypt.hash('owner1234', 12),
+    role: 'owner',
+    is_active: true
+  });
+  await returnId(knex('user_profile')).insert({
+    user_id: 3,
+    first_name: 'owner',
+    last_name: 'ownerson'
+  });
 }

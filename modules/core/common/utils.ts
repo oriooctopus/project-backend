@@ -39,7 +39,7 @@ export const traceMethodCalls = (obj: any) => {
       const origProperty = target[property];
       return (...args: any[]) => {
         const result = origProperty.apply(target, args);
-        log.debug(`${String(property)}${JSON.stringify(args) + ' -> ' + JSON.stringify(result)}`);
+        // log.debug(`${String(property)}${JSON.stringify(args) + ' -> ' + JSON.stringify(result)}`);
         return result;
       };
     }
