@@ -8,9 +8,9 @@ export default {
   ],
   user: [
     'basic',
+    'restaurant:view:all',
     'user:view:self',
     'user:update:self',
-    'stripe:*',
     'review:create:self'
   ],
   owner: [

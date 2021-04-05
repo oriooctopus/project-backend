@@ -16,6 +16,7 @@ type Restaurant {
 type Review {
   id: Int!
   canAddComment: Boolean!
+  canModify: Boolean!
   createdAt: String!
   content: String!
   date: String!
@@ -29,6 +30,7 @@ type Review {
 
 type ReviewComment {
   id: Int!
+  canModify: Boolean!
   comment: String!
   review: Review!
   reviewId: Int!
@@ -69,7 +71,6 @@ extend type Query {
   restaurants(
     after: Int
     limit: Int
-    ownedByUser: Boolean
     ratingsMinimum: Int
   ): Restaurants
   getUnansweredReviewsForOwner(
@@ -97,7 +98,6 @@ input AddRestaurantInput {
   description: String!
   title: String!
   imageUrl: String!
-  userId: Int!
   location: String!
 }
 

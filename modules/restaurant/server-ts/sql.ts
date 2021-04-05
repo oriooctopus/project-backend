@@ -15,15 +15,6 @@ const getRestaurantFields = (precursor = '') => [
   `${precursor && `${precursor}.`}user_id as userId`
 ];
 
-const reviewFields = [
-  'id',
-  'content',
-  'rating',
-  'restaurant_id AS restaurantId',
-  'user_id AS userId',
-  'created_at AS createdAt'
-];
-
 const getReviewFields = (precursor = '') => [
   `${precursor && `${precursor}.`}id`,
   `${precursor && `${precursor}.`}content`,
@@ -33,10 +24,10 @@ const getReviewFields = (precursor = '') => [
   `${precursor && `${precursor}.`}created_at AS createdAt`
 ];
 
-const reviewCommentFields = [
-  'id',
-  'comment',
-  'review_id as reviewId',
+const getReviewCommentFields = (precursor = '') => [
+  `${precursor && `${precursor}.`}id`,
+  `${precursor && `${precursor}.`}comment`,
+  `${precursor && `${precursor}.`}review_id as reviewId`,
 ];
 
 export interface Restaurant {
@@ -156,7 +147,7 @@ export default class RestaurantDAO {
 
   public async getReviewsForRestaurantIds(restaurantIds: number[]) {
     const res = await knex
-      .select(reviewFields)
+      .select(...getReviewFields())
       .from('review')
       .whereIn('restaurant_id', restaurantIds)
       .orderBy('created_at', 'desc');
@@ -249,7 +240,7 @@ export default class RestaurantDAO {
 
   public getReview(id: number) {
     return knex
-      .select(reviewFields)
+      .select(...getReviewFields())
       .from('review')
       .where('id', '=', id)
       .first();
@@ -272,7 +263,7 @@ export default class RestaurantDAO {
 
   public getReviewComment(id: number) {
     return knex
-      .select(...reviewCommentFields)
+      .select(...getReviewCommentFields())
       .from('review_comment')
       .where('id', '=', id)
       .first();
@@ -304,6 +295,16 @@ export default class RestaurantDAO {
   public getReviewCommentFromReview(reviewId: number) {
     return knex('review_comment')
       .where('review_id', '=', reviewId)
+      .first();
+  }
+
+  public async getRestaurantFromReviewComment(reviewCommentId: number) {
+    return await knex
+      .select(...getRestaurantFields('res'))
+      .from('review_comment as rc')
+      .innerJoin('review as rev', 'rev.id', 'rc.review_id')
+      .innerJoin('restaurant as res', 'res.id', 'rev.restaurant_id')
+      .where('rc.id', '=', reviewCommentId)
       .first();
   }
 }

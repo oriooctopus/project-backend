@@ -4,6 +4,7 @@ import { createBatchResolver } from 'graphql-resolve-batch';
 import { Restaurant, Review, ReviewComment, Identifier } from './sql';
 
 import RestaurantService from './service';
+import { isAdmin } from './utils';
 
 import { timestampToDate } from './utils';
 
@@ -19,7 +20,6 @@ interface RestaurantsParams {
   after: number;
   limit: number;
   onlyUnreplied: boolean;
-  ownedByUser: boolean;
   ratingsMinimum: number;
 }
 
@@ -38,7 +38,7 @@ interface RestaurantInput {
 }
 
 interface RestaurantInputWithId {
-  input: Restaurant & Identifier;
+  input: Omit<Restaurant, 'userId'> & Identifier;
 }
 
 interface ReviewInput {
@@ -46,15 +46,15 @@ interface ReviewInput {
   input: Review;
 }
 
-interface ReviewInputWithId {
-  input: Review & Identifier;
+interface EditReviewInput {
+  input: Omit<Review, 'userId'> & Identifier;
 }
 
 interface ReviewCommentInput {
   input: ReviewComment;
 }
 
-interface ReviewCommentInputWithId {
+interface EditReviewCommentInput {
   input: ReviewComment & Identifier;
 }
 
@@ -65,60 +65,57 @@ const REVIEW_COMMENT_SUBSCRIPTION = 'review_comment_subscription';
 
 export default (pubsub: PubSub) => ({
   Query: {
-    async getUnansweredReviewsForOwner(
-      obj: any,
-      { after = 0, limit = 10 }: UnansweredReviewsParams,
-      context: any
-    ) {
-      const edgesArray: UnansweredReviewsEdges[] = [];
-      const allMatchingReviews = await context.Restaurant.getUnansweredReviewsForOwner(
-        context.req.identity.id
-      );
-      const reviewsToReturn = allMatchingReviews.slice(
-        after,
-        after + limit
-      );
-      const total = allMatchingReviews.length;
-      const hasNextPage = total > after + limit;
-
-      reviewsToReturn.map(
-        (review: Review & Identifier, index: number) => {
-          edgesArray.push({
-            cursor: after + index,
-            node: review
-          });
-        }
-      );
-      const endCursor =
-        edgesArray.length > 0
-          ? edgesArray[edgesArray.length - 1].cursor
-          : 0;
-
-      return {
-        totalCount: total,
-        edges: edgesArray,
-        pageInfo: {
-          endCursor,
-          hasNextPage
-        }
-      };
-    },
-    restaurants: withAuth(
+    getUnansweredReviewsForOwner: withAuth(
       ['basic'],
       async (
         obj: any,
-        {
-          after = 0,
-          limit = 10,
-          ownedByUser,
-          ratingsMinimum
-        }: RestaurantsParams,
+        { after = 0, limit = 10 }: UnansweredReviewsParams,
+        context: any
+      ) => {
+        const edgesArray: UnansweredReviewsEdges[] = [];
+        const allMatchingReviews = await context.Restaurant.getUnansweredReviewsForOwner(
+          context.req.identity.id
+        );
+        const reviewsToReturn = allMatchingReviews.slice(
+          after,
+          after + limit
+        );
+        const total = allMatchingReviews.length;
+        const hasNextPage = total > after + limit;
+
+        reviewsToReturn.map(
+          (review: Review & Identifier, index: number) => {
+            edgesArray.push({
+              cursor: after + index,
+              node: review
+            });
+          }
+        );
+        const endCursor =
+          edgesArray.length > 0
+            ? edgesArray[edgesArray.length - 1].cursor
+            : 0;
+
+        return {
+          totalCount: total,
+          edges: edgesArray,
+          pageInfo: {
+            endCursor,
+            hasNextPage
+          }
+        };
+      }
+    ),
+    restaurants: withAuth(
+      ['restaurant:view:all', 'restaurant:view:self'],
+      async (
+        obj: any,
+        { after = 0, limit = 10, ratingsMinimum }: RestaurantsParams,
         { Restaurant, req: { identity } }
       ) => {
         let userFilter =
-          ownedByUser || identity.role === 'owner'
-            ? identity.id
-            : null;
+          identity.role === 'owner' ? identity.id : null;
+        // console.log('params', after, limit, ratingsMinimum, ownedByUser, userFilter);
 
         const edgesArray: RestaurantsEdges[] = [];
         const allMatchingRestaurants = await Restaurant.getRestaurants(
@@ -176,6 +173,9 @@ export default (pubsub: PubSub) => ({
       );
       return !existingComment;
     },
+    async canModify({ userId }: Review, _: any, context: any) {
+      return isAdmin(context) || userId === context.req.identity.id;
+    },
     reviewComment({ id }: Identifier, _: any, context: any) {
       return context.Restaurant.getReviewCommentFromReview(id);
     },
@@ -201,6 +201,16 @@ export default (pubsub: PubSub) => ({
     review({ reviewId }: ReviewComment, _: any, context: any) {
       console.log('the review id', reviewId);
       return context.Restaurant.getReview(reviewId);
+    },
+    async canModify({ id }: Identifier, _: any, context: any) {
+      if (isAdmin(context)) {
+        return true;
+      }
+
+      const {
+        userId: restaurantUserId
+      } = await context.Restaurant.getRestaurantFromReviewComment(id);
+      return restaurantUserId === context.req.identity.id;
     }
   },
   Restaurant: {
@@ -209,7 +219,10 @@ export default (pubsub: PubSub) => ({
       _: any,
       context: any
     ) {
-      // console.log('stuff', restaurantId, context.req.identity.id);
+      if (context.req.identity.role === 'owner') {
+        return false;
+      }
+
       return service.customerCanAddReview(
         context.req.identity.id,
         restaurantId
@@ -236,20 +249,35 @@ export default (pubsub: PubSub) => ({
     }
   },
   Mutation: {
-    async addRestaurant(
-      obj: any,
-      { input }: RestaurantInput,
-      context: any
-    ) {
-      const [id] = await context.Restaurant.addRestaurant(input);
-      const restaurant = await context.Restaurant.restaurant(id);
-      return restaurant;
-    },
+    addRestaurant: withAuth(
+      ['restaurant:create:self'],
+      async (obj: any, { input }: RestaurantInput, context: any) => {
+        const newRestaurant = {
+          ...input,
+          userId: context.req.identity.id
+        };
+        const [id] = await context.Restaurant.addRestaurant(
+          newRestaurant
+        );
+        const restaurant = await context.Restaurant.restaurant(id);
+        return restaurant;
+      }
+    ),
     async deleteRestaurant(
       obj: any,
       { id }: Identifier,
       context: any
     ) {
+      if (!isAdmin(context)) {
+        const restaurant = await context.Restaurant.restaurant(id);
+
+        if (restaurant.userId !== context.req.identity.id) {
+          throw new Error(
+            'insufficient permissions to delete this restaurant'
+          );
+        }
+      }
+
       const isDeleted = await context.Restaurant.deleteRestaurant(id);
       if (!isDeleted) {
         throw new Error('Restaurant was not deleted');
@@ -262,12 +290,24 @@ export default (pubsub: PubSub) => ({
       { input }: RestaurantInputWithId,
       context: any
     ) {
+      if (!isAdmin(context)) {
+        const restaurant = await context.Restaurant.restaurant(
+          input.id
+        );
+
+        if (restaurant.userId !== context.req.identity.id) {
+          throw new Error(
+            'insufficient permissions to edit this restaurant'
+          );
+        }
+      }
+
       await context.Restaurant.editRestaurant(input);
-      const restaurant = await context.Restaurant.restaurant(
+      const editedRestaurant = await context.Restaurant.restaurant(
         input.id
       );
 
-      return restaurant;
+      return editedRestaurant;
     },
     addReview: withAuth(
       ['review:create:self'],
@@ -293,6 +333,16 @@ export default (pubsub: PubSub) => ({
       }
     ),
     async deleteReview(obj: any, { id }: Identitifer, context: any) {
+      const review = await context.Restaurant.getReview(id);
+      if (
+        !isAdmin(context) &&
+        review.userId !== context.req.identity.id
+      ) {
+        throw new Error(
+          'User does not have authorization to delete this review'
+        );
+      }
+
       const result = await context.Restaurant.deleteReview(id);
       if (result === 0) {
         throw new Error('review is already deleted');
@@ -301,18 +351,43 @@ export default (pubsub: PubSub) => ({
     },
     async editReview(
       obj: any,
-      { input }: ReviewInputWithId,
+      { input }: EditReviewInput,
       context: any
     ) {
-      await context.Restaurant.editReview(input);
       const review = await context.Restaurant.getReview(input.id);
-      return review;
+      if (
+        !isAdmin(context) &&
+        review.userId !== context.req.identity.id
+      ) {
+        throw new Error(
+          'User does not have authorization to edit this review'
+        );
+      }
+
+      await context.Restaurant.editReview(input);
+      const editedReview = await context.Restaurant.getReview(
+        input.id
+      );
+      return editedReview;
     },
     async addReviewComment(
       obj: any,
       { input }: ReviewCommentInput,
       context: any
     ) {
+      const { reviewId } = input;
+      // ideally speed this up if you have time
+      const review = await context.Restaurant.getReview(reviewId);
+      const restaurant = await context.Restaurant.restaurant(
+        review.restaurantId
+      );
+
+      if (restaurant.userId !== context.req.identity.id) {
+        throw new Error(
+          'Only the creator of the restauarant can add comments to reviews on that restaurant'
+        );
+      }
+
       const [id] = await context.Restaurant.addReviewComment(input);
       const reviewComment = await context.Restaurant.getReviewComment(
         id
@@ -324,17 +399,49 @@ export default (pubsub: PubSub) => ({
       { id }: Identifier,
       context: any
     ) {
-      const result = await context.Restaurant.deleteReviewComment(id);
-      if (result === 0) {
+      if (!isAdmin(context)) {
+        const {
+          userId: restaurantUserId
+        } = await context.Restaurant.getRestaurantFromReviewComment(
+          id
+        );
+
+        if (restaurantUserId !== context.req.identity.id) {
+          throw new Error(
+            'Only the creator of the restauarant can edit comments to reviews on this restaurant'
+          );
+        }
+      }
+
+      const isDeleted = await context.Restaurant.deleteReviewComment(
+        id
+      );
+
+      if (!isDeleted) {
         throw new Error('review comment is already deleted');
       }
+
       return { id };
     },
     async editReviewComment(
       obj: any,
-      { input }: ReviewCommentInputWithId,
+      { input }: EditReviewCommentInput,
       context: any
     ) {
+      if (!isAdmin(context)) {
+        const {
+          userId: restaurantUserId
+        } = await context.Restaurant.getRestaurantFromReviewComment(
+          input.id
+        );
+
+        if (restaurantUserId !== context.req.identity.id) {
+          throw new Error(
+            'Only the creator of the restauarant can edit comments to reviews on this restaurant'
+          );
+        }
+      }
+
       await context.Restaurant.editReviewComment(input);
       const reviewComment = await context.Restaurant.getReviewComment(
         input.id

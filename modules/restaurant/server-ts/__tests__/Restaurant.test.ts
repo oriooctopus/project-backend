@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { getApollo } from '@gqlapp/testing-server-ts';
 import gql from 'graphql-tag';
 import {
+  ADD_RESTAURANT_MUTATION,
   createLoginOwner,
   createLoginUser,
   createLogout,
@@ -12,6 +13,26 @@ let loginOwner = (): void => null;
 let loginUser = (): void => null;
 let logout = (): void => null;
 
+const RESTAURANTS_QUERY = gql`
+  query RestaurantsQuery($limit: Int, $after: Int) {
+    restaurants(limit: $limit, after: $after) {
+      totalCount
+      edges {
+        cursor
+        node {
+          id
+          title
+          description
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`;
+
 describe('Restaurant and reviews example API works', () => {
   let apollo: any;
 
@@ -19,32 +40,11 @@ describe('Restaurant and reviews example API works', () => {
     apollo = getApollo();
     loginOwner = createLoginOwner(apollo);
     loginUser = createLoginUser(apollo);
-    logout = createLogout(apollo);
-    logout();
   });
 
   it('Query restaurant list works', async () => {
     await loginUser();
 
-    const RESTAURANTS_QUERY = gql`
-      query RestaurantsQuery($limit: Int, $after: Int) {
-        restaurants(limit: $limit, after: $after) {
-          totalCount
-          edges {
-            cursor
-            node {
-              id
-              title
-              description
-            }
-          }
-          pageInfo {
-            endCursor
-            hasNextPage
-          }
-        }
-      }
-    `;
     const result = await apollo.query({
       query: RESTAURANTS_QUERY,
       variables: { limit: 1, after: 18 }
@@ -127,31 +127,11 @@ describe('Restaurant and reviews example API works', () => {
   });
 
   it('Publishes restaurant on add', async () => {
-    const mutation = gql`
-      mutation addRestaurant {
-        addRestaurant(
-          input: {
-            title: "This is a new restaurant"
-            description: "this is a restaurant description"
-            location: "812 evergreen terrace"
-            imageUrl: "https://images.unsplash.com/photo-1490138139357-fc819d02e344?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNDF8MHwxfHJhbmRvbXx8fHx8fHx8fDE2MTc1NDIzNTQ&ixlib=rb-1.2.1&q=80&w=400"
-            userId: 3
-          }
-        ) {
-          description
-          title
-          userId
-        }
-      }
-    `;
-
     await loginOwner();
     const result = await apollo.mutate({
-      mutation
+      mutation: ADD_RESTAURANT_MUTATION
     });
     removeTypename(result.data);
-
-    console.log('the results!!', result);
 
     expect(result.data).to.deep.equal({
       addRestaurant: {
@@ -160,6 +140,16 @@ describe('Restaurant and reviews example API works', () => {
         userId: 3
       }
     });
+  });
+
+  it('Customer cannot add restaurant', async () => {
+    await loginUser();
+    const addRestaurant = async () =>
+      await apollo.mutate({
+        mutation: ADD_RESTAURANT_MUTATION
+      });
+
+    expect(addRestaurant).to.throw();
   });
 
   it('Can delete a restaurant', async () => {
@@ -171,7 +161,6 @@ describe('Restaurant and reviews example API works', () => {
             description: "this is a restaurant description"
             location: "812 evergreen terrace"
             imageUrl: "https://images.unsplash.com/photo-1490138139357-fc819d02e344?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNDF8MHwxfHJhbmRvbXx8fHx8fHx8fDE2MTc1NDIzNTQ&ixlib=rb-1.2.1&q=80&w=400"
-            userId: 3
           }
         ) {
           id
