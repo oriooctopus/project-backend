@@ -10,7 +10,7 @@ import { timestampToDate } from './utils';
 import withAuth from 'graphql-auth';
 import service from './service';
 
-interface Edges {
+interface RestaurantsEdges {
   cursor: number;
   node: Restaurant & Identifier;
 }
@@ -21,6 +21,16 @@ interface RestaurantsParams {
   onlyUnreplied: boolean;
   ownedByUser: boolean;
   ratingsMinimum: number;
+}
+
+interface UnansweredReviewsParams {
+  after: number;
+  limit: number;
+}
+
+interface UnansweredReviewsEdges {
+  cursor: number;
+  node: Review & Identifier;
 }
 
 interface RestaurantInput {
@@ -55,20 +65,51 @@ const REVIEW_COMMENT_SUBSCRIPTION = 'review_comment_subscription';
 
 export default (pubsub: PubSub) => ({
   Query: {
-    async restaurants(
+    async getUnansweredReviewsForOwner(
       obj: any,
-      {
-        after,
-        limit,
-        ownedByUser,
-        ratingsMinimum
-      }: RestaurantsParams,
+      { after, limit }: UnansweredReviewsParams,
       context: any
     ) {
-      const edgesArray: Edges[] = [];
-      const allMatchingRestaurants = await context.Restaurant.getRestaurants(
-        limit,
+      const edgesArray: UnansweredReviewsEdges[] = [];
+      const allMatchingReviews = await context.Restaurant.getUnansweredReviewsForOwner(
+        context.req.identity.id
+      );
+      const reviewsToReturn = allMatchingReviews.slice(
         after,
+        after + limit
+      );
+      const total = allMatchingReviews.length;
+      const hasNextPage = total > after + limit;
+
+      reviewsToReturn.map(
+        (review: Review & Identifier, index: number) => {
+          edgesArray.push({
+            cursor: after + index,
+            node: review
+          });
+        }
+      );
+      const endCursor =
+        edgesArray.length > 0
+          ? edgesArray[edgesArray.length - 1].cursor
+          : 0;
+
+      return {
+        totalCount: total,
+        edges: edgesArray,
+        pageInfo: {
+          endCursor,
+          hasNextPage
+        }
+      };
+    },
+    async restaurants(
+      obj: any,
+      { after, limit, ownedByUser, ratingsMinimum }: RestaurantsParams,
+      context: any
+    ) {
+      const edgesArray: RestaurantsEdges[] = [];
+      const allMatchingRestaurants = await context.Restaurant.getRestaurants(
         ratingsMinimum,
         ownedByUser && context.req.identity.id
       );
@@ -108,9 +149,22 @@ export default (pubsub: PubSub) => ({
     },
     review(obj: any, { id }: Identifier, context: any) {
       return context.Restaurant.getReview(id);
+    },
+    reviewComment(obj: any, { id }: Identifier, context: any) {
+      return context.Restaurant.getReviewComment(id);
     }
   },
   Review: {
+    async canAddComment({ id }: Identifier, _: any, context: any) {
+      if (!context.req.identity.role !== 'owner') {
+        return false;
+      }
+
+      const existingComment = await context.Restaurant.getReviewCommentFromReview(
+        id
+      );
+      return !existingComment;
+    },
     reviewComment({ id }: Identifier, _: any, context: any) {
       return context.Restaurant.getReviewCommentFromReview(id);
     },
@@ -122,6 +176,20 @@ export default (pubsub: PubSub) => ({
     },
     restaurant({ restaurantId }: Review, _: any, context: any) {
       return context.Restaurant.restaurant(restaurantId);
+    }
+  },
+  ReviewComment: {
+    async restaurantId(
+      { reviewId }: ReviewComment,
+      _: any,
+      context: any
+    ) {
+      const review = await context.Restaurant.getReview(reviewId);
+      return review && review.restaurantId;
+    },
+    review({ reviewId }: ReviewComment, _: any, context: any) {
+      console.log('the review id', reviewId);
+      return context.Restaurant.getReview(reviewId);
     }
   },
   Restaurant: {

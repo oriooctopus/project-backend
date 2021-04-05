@@ -1,5 +1,6 @@
 type Restaurant {
   id: Int!
+  averageRating: Float
   canAddReview: Boolean!
   title: String!
   description: String!
@@ -8,13 +9,14 @@ type Restaurant {
   lowestReview: Review
   location: String!
   reviews: [Review]
-  averageRating: Float
   totalReviews: Int!
+  userId: Int!
 }
 
 type Review {
-  createdAt: String!
   id: Int!
+  canAddComment: Boolean!
+  createdAt: String!
   content: String!
   date: String!
   rating: Int!
@@ -28,7 +30,9 @@ type Review {
 type ReviewComment {
   id: Int!
   comment: String!
+  review: Review!
   reviewId: Int!
+  restaurantId: Int!
 }
 
 type RestaurantEdges {
@@ -37,7 +41,7 @@ type RestaurantEdges {
 }
 
 # PageInfo for Restaurants
-type RestaurantPageInfo {
+type PaginationQueryPageInfo {
   endCursor: Int
   hasNextPage: Boolean
 }
@@ -46,17 +50,35 @@ type RestaurantPageInfo {
 type Restaurants {
   totalCount: Int
   edges: [RestaurantEdges]
-  pageInfo: RestaurantPageInfo
+  pageInfo: PaginationQueryPageInfo
+}
+
+type UnansweredReviewEdges {
+  node: Review
+  cursor: Int
+}
+
+# UnansweredReviews relay-style pagination query
+type UnansweredReviews {
+  totalCount: Int
+  edges: [UnansweredReviewEdges]
+  pageInfo: PaginationQueryPageInfo
 }
 
 extend type Query {
   restaurants(
     after: Int
     limit: Int
+    ownedByUser: Boolean
     ratingsMinimum: Int
   ): Restaurants
+  getUnansweredReviewsForOwner(
+    after: Int
+    limit: Int
+  ): UnansweredReviews
   restaurant(id: Int!): Restaurant
   review(id: Int!): Review
+  reviewComment(id: Int!): ReviewComment
 }
 
 extend type Mutation {
@@ -110,6 +132,7 @@ input AddReviewCommentInput {
 input EditReviewCommentInput {
   id: Int!
   comment: String!
+  reviewId: Int!
 }
 
 extend type Subscription {
