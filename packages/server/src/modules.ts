@@ -4,12 +4,10 @@ import validation from '@gqlapp/validation-common-react';
 import contact from '@gqlapp/contact-server-ts';
 import cookies from '@gqlapp/cookies-server-ts';
 import restaurant from '@gqlapp/restaurant-server-ts';
-import upload from '@gqlapp/upload-server-ts';
 import subscription from '@gqlapp/payments-server-ts';
 import mailer from '@gqlapp/mailer-server-ts';
 import graphqlTypes from '@gqlapp/graphql-types-server-ts';
 import authentication from '@gqlapp/authentication-server-ts';
-import reports from '@gqlapp/reports-server-ts';
 import rest from '@gqlapp/rest-server-ts';
 import '@gqlapp/debug-server-ts';
 
@@ -25,10 +23,8 @@ const modules: ServerModule = new ServerModule(
   restaurant,
   subscription,
   user,
-  upload,
   contact,
   mailer,
-  reports,
   rest,
   graphqlTypes,
   core

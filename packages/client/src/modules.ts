@@ -21,13 +21,11 @@ const modules = new ClientModule(
   validation,
   defaultRouter,
   // post,
-  upload,
   contact,
   pagination,
   payments,
   user,
   i18n,
-  reports,
   pageNotFound,
   core,
   authentication

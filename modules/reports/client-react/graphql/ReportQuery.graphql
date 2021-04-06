@@ -1,7 +1,0 @@
-#import "./Report.graphql"
-
-query report {
-  report {
-    ...ReportInfo
-  }
-}
