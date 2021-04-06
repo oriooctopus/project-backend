@@ -2,6 +2,7 @@ type Restaurant {
   id: Int!
   averageRating: Float
   canAddReview: Boolean!
+  canModify: Boolean!
   title: String!
   description: String!
   highestReview: Review

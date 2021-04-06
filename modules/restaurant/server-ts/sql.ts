@@ -84,7 +84,7 @@ export default class RestaurantDAO {
     }
 
     if (ratingsMinimum) {
-      query.where('rev.rating', '>', ratingsMinimum);
+      query.where('rev.rating', '>=', ratingsMinimum);
     }
 
     return query;

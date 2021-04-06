@@ -228,6 +228,9 @@ export default (pubsub: PubSub) => ({
         restaurantId
       );
     },
+    async canModify({ userId }: Review, _: any, context: any) {
+      return isAdmin(context) || userId === context.req.identity.id;
+    },
     highestReview({ id }: Identifier, args: any, context: any) {
       return context.Restaurant.getHighestReviewForRestaurant(id);
     },
