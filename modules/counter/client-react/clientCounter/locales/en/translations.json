@@ -1,4 +1,0 @@
-{
-    "text": "The current counter value is {{amount}}. It's stored on the client with Apollo Link State.",
-    "btnLabel": "Increase Apollo Link State counter"
-}

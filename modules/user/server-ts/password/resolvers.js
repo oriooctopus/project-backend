@@ -45,8 +45,6 @@ export default () => ({
       },
       { req }
     ) {
-      console.log('username or email', usernameOrEmail);
-      console.log('password', password);
       const user = await User.getUserByUsernameOrEmail(
         usernameOrEmail
       );
