@@ -2,7 +2,6 @@ import core from '@gqlapp/core-server-ts';
 import i18n from '@gqlapp/i18n-server-ts';
 import cookies from '@gqlapp/cookies-server-ts';
 import restaurant from '@gqlapp/restaurant-server-ts';
-import mailer from '@gqlapp/mailer-server-ts';
 import graphqlTypes from '@gqlapp/graphql-types-server-ts';
 import authentication from '@gqlapp/authentication-server-ts';
 import rest from '@gqlapp/rest-server-ts';
@@ -18,7 +17,6 @@ const modules: ServerModule = new ServerModule(
   i18n,
   restaurant,
   user,
-  mailer,
   rest,
   graphqlTypes,
   core
