@@ -3,7 +3,6 @@ import i18n from '@gqlapp/i18n-client-react';
 import counter from '@gqlapp/counter-client-react';
 import chat from '@gqlapp/chat-client-react';
 import contact from '@gqlapp/contact-client-react';
-import validation from '@gqlapp/validation-common-react';
 import defaultRouter from '@gqlapp/router-client-react-native';
 import authentication from '@gqlapp/authentication-client-react';
 
@@ -15,12 +14,7 @@ const pagination = require('@gqlapp/pagination-client-react').default;
 const user = require('@gqlapp/user-client-react').default;
 
 const modules = new ClientModule(
-  validation,
   defaultRouter,
-  counter,
-  upload,
-  contact,
-  pagination,
   chat,
   user,
   i18n,

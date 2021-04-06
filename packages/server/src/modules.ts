@@ -1,6 +1,5 @@
 import core from '@gqlapp/core-server-ts';
 import i18n from '@gqlapp/i18n-server-ts';
-import validation from '@gqlapp/validation-common-react';
 import cookies from '@gqlapp/cookies-server-ts';
 import restaurant from '@gqlapp/restaurant-server-ts';
 import mailer from '@gqlapp/mailer-server-ts';
@@ -17,7 +16,6 @@ const modules: ServerModule = new ServerModule(
   authentication,
   cookies,
   i18n,
-  validation,
   restaurant,
   user,
   mailer,
