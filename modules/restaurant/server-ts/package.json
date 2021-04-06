@@ -4,5 +4,8 @@
   "private": true,
   "dependencies": {
     "moment": "^2.29.1"
+  },
+  "devDependencies": {
+    "chai-as-promised": "^7.1.1"
   }
 }

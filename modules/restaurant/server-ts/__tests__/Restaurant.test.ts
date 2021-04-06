@@ -1,15 +1,20 @@
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
 import { getApollo } from '@gqlapp/testing-server-ts';
 import gql from 'graphql-tag';
 import {
   ADD_RESTAURANT_MUTATION,
+  createLoginAlternateOwner,
   createLoginOwner,
   createLoginUser,
   createLogout,
+  removeKey,
   removeTypename
 } from './utils';
 
+chai.use(require('chai-as-promised'));
+
 let loginOwner = (): void => null;
+let loginAlternateOwner = (): void => null;
 let loginUser = (): void => null;
 let logout = (): void => null;
 
@@ -38,8 +43,10 @@ describe('Restaurant and reviews example API works', () => {
 
   beforeAll(async () => {
     apollo = getApollo();
+    loginAlternateOwner = createLoginAlternateOwner(apollo);
     loginOwner = createLoginOwner(apollo);
     loginUser = createLoginUser(apollo);
+    console.log('\n\n\n\n\n starting next test');
   });
 
   it('Query restaurant list works', async () => {
@@ -136,6 +143,7 @@ describe('Restaurant and reviews example API works', () => {
     expect(result.data).to.deep.equal({
       addRestaurant: {
         description: 'this is a restaurant description',
+        id: 21,
         title: 'This is a new restaurant',
         userId: 3
       }
@@ -149,7 +157,7 @@ describe('Restaurant and reviews example API works', () => {
         mutation: ADD_RESTAURANT_MUTATION
       });
 
-    expect(addRestaurant).to.throw();
+    await expect(addRestaurant()).to.be.rejectedWith(Error);
   });
 
   it('Can delete a restaurant', async () => {
@@ -187,7 +195,6 @@ describe('Restaurant and reviews example API works', () => {
       mutation: addRestaurantMutation
     });
     const newRestaurantId = newRestaurant.data.addRestaurant.id;
-    console.log('check!', JSON.stringify(newRestaurant));
 
     expect(newRestaurantId).to.be.greaterThan(0);
 
@@ -206,6 +213,37 @@ describe('Restaurant and reviews example API works', () => {
     });
 
     expect(deletedRestaurant.data.restaurant).to.be.null;
+  });
+
+  it('An owner can only see their own restaurants', async () => {
+    await loginAlternateOwner();
+
+    const oldRestaurantList = await apollo.query({
+      query: RESTAURANTS_QUERY,
+      variables: { limit: 10, after: 0 }
+    });
+
+    await logout();
+    await loginOwner();
+
+    const oldRestaurantsLength =
+      oldRestaurantList.data.restaurants.totalCount;
+
+    await apollo.mutate({
+      mutation: ADD_RESTAURANT_MUTATION
+    });
+
+    await logout();
+    await loginAlternateOwner();
+
+    const newRestaurantList = await apollo.query({
+      query: RESTAURANTS_QUERY,
+      variables: { limit: 10, after: 0 }
+    });
+
+    expect(newRestaurantList.data.restaurants.totalCount).to.equal(
+      oldRestaurantsLength
+    );
   });
 });
 

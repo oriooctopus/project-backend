@@ -33,22 +33,30 @@ export const createLoginUser = (apollo: any) => {
   };
 };
 
-export const createLoginOwner = (apollo: any) => {
-  return async (alternateOwner = false) => {
-    const defaultOwnerCredentials = {
-      usernameOrEmail: 'owner',
-      password: 'owner1234'
-    };
-    const alternateOwnerCredentials = {
-      usernameOrEmail: 'owner2',
-      password: 'owner1234'
-    };
+type createLoginOwnerProps = {
+  alternate?: boolean;
+};
 
+export const createLoginOwner = (apollo: any) => {
+  return async () => {
     await apollo.mutate({
       mutation: LOGIN_MUTATION,
-      variables: alternateOwner
-        ? alternateOwnerCredentials
-        : defaultOwnerCredentials
+      variables: {
+        usernameOrEmail: 'owner',
+        password: 'owner1234'
+      }
+    });
+  };
+};
+
+export const createLoginAlternateOwner = (apollo: any) => {
+  return async () => {
+    await apollo.mutate({
+      mutation: LOGIN_MUTATION,
+      variables: {
+        usernameOrEmail: 'owner2',
+        password: 'owner1234'
+      }
     });
   };
 };
@@ -61,8 +69,8 @@ export const createLogout = (apollo: any) => {
   };
 };
 
-export const removeTypename = (obj: any) => {
-  delete obj['__typename'];
+export const removeKey = (obj: any, keyToRemove: string) => {
+  delete obj[keyToRemove];
   for (let key in obj) {
     if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
       removeTypename(obj[key]);
@@ -74,6 +82,8 @@ export const removeTypename = (obj: any) => {
   }
 };
 
+export const removeTypename = (obj: any) => removeKey(obj, '__typename');
+
 export const ADD_RESTAURANT_MUTATION = gql`
   mutation addRestaurant {
     addRestaurant(
@@ -84,6 +94,7 @@ export const ADD_RESTAURANT_MUTATION = gql`
         imageUrl: "https://images.unsplash.com/photo-1490138139357-fc819d02e344?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNDF8MHwxfHJhbmRvbXx8fHx8fHx8fDE2MTc1NDIzNTQ&ixlib=rb-1.2.1&q=80&w=400"
       }
     ) {
+      id
       description
       title
       userId

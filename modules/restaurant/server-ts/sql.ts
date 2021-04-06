@@ -69,7 +69,6 @@ export default class RestaurantDAO {
     ratingsMinimum: number,
     userId: number
   ) {
-    console.log("what is it", userId);
     const query = knex
       .select(...getRestaurantFields('res'))
       .avg('rev.rating as rating')

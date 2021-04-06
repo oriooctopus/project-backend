@@ -243,11 +243,9 @@ export default (pubsub: PubSub) => ({
       );
     }),
     averageRating({ id }: Identifier, _: any, context: any) {
-      console.log('restaurant id for average rating', id);
       return context.Restaurant.getAverageRating(id);
     },
     totalReviews({ id }: Identifier, _: any, context: any) {
-      console.log('restaurant id for total reviews', id);
       return context.Restaurant.getTotalReviews(id);
     }
   },
