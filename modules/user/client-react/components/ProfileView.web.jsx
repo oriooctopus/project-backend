@@ -5,7 +5,14 @@ import { Link } from 'react-router-dom';
 
 import { StripeSubscriptionProfile } from '@gqlapp/payments-client-react';
 import { translate } from '@gqlapp/i18n-client-react';
-import { LayoutCenter, Card, CardGroup, CardTitle, CardText, PageLayout } from '@gqlapp/look-client-react';
+import {
+  LayoutCenter,
+  Card,
+  CardGroup,
+  CardTitle,
+  CardText,
+  PageLayout
+} from '@gqlapp/look-client-react';
 import settings from '@gqlapp/config';
 
 const renderMetaData = (t) => {
@@ -15,8 +22,8 @@ const renderMetaData = (t) => {
       meta={[
         {
           name: 'description',
-          content: `${settings.app.name} - ${t('profile.meta')}`,
-        },
+          content: `${settings.app.name} - ${t('profile.meta')}`
+        }
       ]}
     />
   );
@@ -58,9 +65,14 @@ const ProfileView = ({ currentUserLoading, currentUser, t }) => {
             {/* Credit card info (Stripe subscription module)*/}
             {settings.stripe.subscription.enabled &&
               settings.stripe.subscription.publicKey &&
-              currentUser.role === 'user' && <StripeSubscriptionProfile />}
+              currentUser.role === 'user' && (
+                <StripeSubscriptionProfile />
+              )}
           </Card>
-          <Link className="mt-2 btn user-link" to={`/users/${currentUser.id}`}>
+          <Link
+            className="mt-2 btn user-link"
+            to={`/users/${currentUser.id}`}
+          >
             {t('profile.editProfileText')}
           </Link>
         </LayoutCenter>
@@ -79,7 +91,7 @@ const ProfileView = ({ currentUserLoading, currentUser, t }) => {
 ProfileView.propTypes = {
   currentUserLoading: PropTypes.bool,
   currentUser: PropTypes.object,
-  t: PropTypes.func,
+  t: PropTypes.func
 };
 
 export default translate('user')(ProfileView);

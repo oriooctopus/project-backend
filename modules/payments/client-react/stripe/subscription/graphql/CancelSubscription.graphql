@@ -1,7 +1,0 @@
-#import "./Subscription.graphql"
-
-mutation cancelStripeSubscription {
-  cancelStripeSubscription {
-    ...StripeSubscription
-  }
-}

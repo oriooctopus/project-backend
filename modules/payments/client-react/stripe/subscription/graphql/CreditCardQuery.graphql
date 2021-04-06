@@ -1,8 +1,0 @@
-query stripeSubscriptionCardQuery {
-  stripeSubscriptionCard {
-    expiryMonth
-    expiryYear
-    last4
-    brand
-  }
-}

@@ -1,5 +1,0 @@
-query stripeSubscriptionProtectedNumber {
-  stripeSubscriptionProtectedNumber {
-    number
-  }
-}

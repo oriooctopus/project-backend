@@ -1,3 +1,0 @@
-fragment StripeSubscription on StripeSubscription {
-  active
-}
